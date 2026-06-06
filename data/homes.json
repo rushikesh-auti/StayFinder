@@ -1,1 +1,30 @@
-[{"houseName":"Pune","price":"500","location":"Pune","rating":"4.5","photoUrl":"http://localhost:3000/"},{"houseName":"Rushi","price":"500","location":"Pune","rating":"4.5","photoUrl":"http://localhost:3000/"},{"houseName":"Swamii","price":"4500","location":"Pune","rating":"5.0","photoUrl":"http://localhost:3000/"},{"houseName":"StarHome","price":"5000","location":"Pune","rating":"3.5","photoUrl":"http://localhost:3000/"},{"houseName":"MoonLight","price":"5000","location":"Pune","rating":"3.5","photoUrl":"http://localhost:3000/"},{"houseName":"","price":"","location":"","rating":"","photoUrl":""},{"houseName":"","price":"","location":"","rating":"","photoUrl":""}]
+[
+  {
+    "houseName": "Pune",
+    "price": "500",
+    "location": "Pune",
+    "rating": "4.5",
+    "photoUrl": "http://localhost:3000/"
+  },
+  {
+    "houseName": "Rushi",
+    "price": "500",
+    "location": "Pune",
+    "rating": "4.5",
+    "photoUrl": "http://localhost:3000/"
+  },
+  {
+    "houseName": "Swamii",
+    "price": "4500",
+    "location": "Pune",
+    "rating": "5.0",
+    "photoUrl": "http://localhost:3000/"
+  },
+  {
+    "houseName": "StarHome",
+    "price": "5000",
+    "location": "Pune",
+    "rating": "3.5",
+    "photoUrl": "http://localhost:3000/"
+  }
+]
