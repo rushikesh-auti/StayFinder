@@ -28,11 +28,24 @@ exports.getBookings = (req, res, next) => {
 };
 
 exports.getFavouriteList = (req, res, next) => {
-  Home.fetchAll((registeredHomes) =>
-    res.render("store/favourite-list", {
-      registeredHomes: registeredHomes,
-      pageTitle: "My Favourites",
-      currentPage: "favourites",
-    })
-  );
+  Favourite.getFavourites(favourites => {
+    Home.fetchAll((registeredHomes) => {
+      const favouriteHomes = registeredHomes.filter(home => favourites.includes(home.id));
+      res.render("store/favourite-list", {
+        favouriteHomes: favouriteHomes,
+        pageTitle: "My Favourites",
+        currentPage: "favourites",
+      })
+    });
+  })
+
 };
+
+exports.postAddToFavourite = (req, res, next) => {
+  Favourite.addToFavourite(req.body.id, error => {
+    if (error) {
+      console.log("Error while marking favourite: ", error);
+    }
+    res.redirect("/favourites");
+  })
+}

@@ -34,6 +34,7 @@ module.exports = class Home {
       callback(!err ? JSON.parse(data) : []);
     });
   };
+  
   static findById(homeId, callback) {
     this.fetchAll(homes => {
       const homeFound = homes.find(home => home.id === homeId);
