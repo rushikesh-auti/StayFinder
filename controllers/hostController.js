@@ -17,6 +17,11 @@ exports.getHomes = (req, res, next) => {
   );
 };
 
+exports.getEditHome = (req, res, next) => {
+  const homeId = req.params.homeId;
+  const editing = req.query.editing === 'true';
+};
+
 exports.getHostHomes = (req, res, next) => {
   Home.fetchAll((registeredHomes) =>
     res.render("host/host-home-list", {
