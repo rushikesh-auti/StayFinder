@@ -1,3 +1,4 @@
+const Favourite = require("../models/favourite");
 const Home = require("../models/home");
 
 exports.getIndex = (req, res, next) => {
@@ -15,15 +16,15 @@ exports.getHomes = (req, res, next) => {
     res.render("store/home-list", {
       registeredHomes: registeredHomes,
       pageTitle: "Homes List",
-      currentPage: "homes",
+      currentPage: "Home",
     })
   );
 };
 
 exports.getBookings = (req, res, next) => {
-  res.render("store/booking", {
+  res.render("store/bookings", {
     pageTitle: "My Bookings",
-    currentPage: "booking",
+    currentPage: "bookings",
   })
 };
 
@@ -49,3 +50,30 @@ exports.postAddToFavourite = (req, res, next) => {
     res.redirect("/favourites");
   })
 }
+
+exports.postRemoveFromFavourite = (req, res, next) => {
+  const homeId = req.params.homeId;
+  Favourite.deleteById(homeId, error => {
+    if (error) {
+      console.log('Error while removing from Favourite', error);
+    }
+    res.redirect("/favourites");
+  })
+}
+
+exports.getHomeDetails = (req, res, next) => {
+  const homeId = req.params.homeId;
+  Home.findById(homeId, home => {
+    if (!home) {
+      console.log("Home not found");
+      res.redirect("/homes");
+    } else {
+      res.render("store/home-detail", {
+        home: home,
+        pageTitle: "Home Detail",
+        currentPage: "Home",
+      });
+    }
+  })
+};
+
