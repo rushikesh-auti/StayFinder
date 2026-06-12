@@ -24,4 +24,5 @@ module.exports = class Favourite {
     const db = getDB();
     return db.collection('favourites').deleteOne({ houseId: delHomeId });
   }
+
 };
