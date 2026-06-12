@@ -12,7 +12,7 @@ exports.getEditHome = (req, res, next) => {
   const homeId = req.params.homeId;
   const editing = req.query.editing === 'true';
 
-  Home.findById(homeId, home => {
+  Home.findById(homeId).then(home => {
     if (!home) {
       console.log("Home not found for editing.");
       return res.redirect("/host/host-home-list");
@@ -29,27 +29,28 @@ exports.getEditHome = (req, res, next) => {
 };
 
 exports.getHostHomes = (req, res, next) => {
-  Home.fetchAll((registeredHomes) =>
+  Home.fetchAll().then(registeredHomes => {
     res.render("host/host-home-list", {
       registeredHomes: registeredHomes,
       pageTitle: "Host Homes List",
       currentPage: "host-homes",
     })
-  );
+  });
 };
 
 exports.postAddHome = (req, res, next) => {
-  const { houseName, price, location, rating, photoUrl } = req.body;
-  const home = new Home(houseName, price, location, rating, photoUrl);
-  home.save();
+  const { houseName, price, location, rating, photoUrl, description } = req.body;
+  const home = new Home(houseName, price, location, rating, photoUrl, description);
+  home.save().then(result => {
+    console.log(result);
+  });
 
   res.redirect("/host/host-home-list");
 };
 
 exports.postEditHome = (req, res, next) => {
-  const { id, houseName, price, location, rating, photoUrl } = req.body;
-  const home = new Home(houseName, price, location, rating, photoUrl);
-  home.id = id;
+  const { id, houseName, price, location, rating, photoUrl, description } = req.body;
+  const home = new Home(houseName, price, location, rating, photoUrl, description, id);
   home.save();
   res.redirect("/host/host-home-list");
 };
@@ -57,10 +58,9 @@ exports.postEditHome = (req, res, next) => {
 exports.postDeleteHome = (req, res, next) => {
   const homeId = req.params.homeId;
   console.log('Came to delete ', homeId);
-  Home.deleteById(homeId, error => {
-    if (error) {
-      console.log('Error while deleting ', error);
-    }
+  Home.deleteById(homeId).then(() => {
     res.redirect("/host/host-home-list");
+  }).catch(error => {
+    console.log('Error while deleting ', error);
   })
 };

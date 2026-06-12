@@ -33,9 +33,9 @@
                     </span>
                   </div>
                 </div>
-                <a href="/host/edit-home/<%=home.id%>?editing=true"
+                <a href="/host/edit-home/<%=home._id%>?editing=true"
                   class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Edit</a>
-                <form action="/host/delete-home/<%= home.id %>" method="POST">
+                <form action="/host/delete-home/<%= home._id %>" method="POST">
                   <button type="submit"
                     class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">Delete</button>
                 </form>
