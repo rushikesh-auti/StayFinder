@@ -2,8 +2,7 @@ const mongo = require('mongodb');
 
 const MongoClient = mongo.MongoClient;
 
-const MONGO_URL =
-  "mongodb+srv://admin:admin2026@cluster0.gkok39p.mongodb.net/airbnb?retryWrites=true&w=majority";
+const MONGO_URL = process.env.MONGODB_URI;
 
 let _db;
 

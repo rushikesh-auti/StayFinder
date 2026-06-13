@@ -1,3 +1,4 @@
+require("dotenv").config();
 // Core Module
 const path = require('path');
 
@@ -23,7 +24,7 @@ app.use(express.static(path.join(rootDir, 'public')))
 
 app.use(errorsController.pageNotFound);
 
-const PORT = 3000;
+const PORT = 3001;
 mongoConnect(() => {
   app.listen(PORT, () => {
     console.log(`Server running on address http://localhost:${PORT}`);
