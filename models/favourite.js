@@ -7,6 +7,7 @@ const favouriteSchema = mongoose.Schema({
     required: true,
     unique: true
   }
+  
 });
 
 module.exports = mongoose.model('Favourite', favouriteSchema);

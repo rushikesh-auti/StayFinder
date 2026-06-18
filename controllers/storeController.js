@@ -30,24 +30,24 @@ exports.getBookings = (req, res, next) => {
 
 exports.getFavouriteList = (req, res, next) => {
   Favourite.find()
-  .populate('houseId')
-  .then((favourites) => {
-    const favouriteHomes = favourites.map((fav) => fav.houseId);
-    res.render("store/favourite-list", {
-      favouriteHomes: favouriteHomes,
-      pageTitle: "My Favourites",
-      currentPage: "favourites",
+    .populate('houseId')
+    .then((favourites) => {
+      const favouriteHomes = favourites.map((fav) => fav.houseId);
+      res.render("store/favourite-list", {
+        favouriteHomes: favouriteHomes,
+        pageTitle: "My Favourites",
+        currentPage: "favourites",
+      });
     });
-  });
 };
 
 exports.postAddToFavourite = (req, res, next) => {
   const homeId = req.body.id;
-  Favourite.findOne({houseId: homeId}).then((fav) => {
+  Favourite.findOne({ houseId: homeId }).then((fav) => {
     if (fav) {
       console.log("Already marked as favourite");
     } else {
-      fav = new Favourite({houseId: homeId});
+      fav = new Favourite({ houseId: homeId });
       fav.save().then((result) => {
         console.log("Fav added: ", result);
       });
@@ -60,7 +60,7 @@ exports.postAddToFavourite = (req, res, next) => {
 
 exports.postRemoveFromFavourite = (req, res, next) => {
   const homeId = req.params.homeId;
-  Favourite.findOneAndDelete({houseId: homeId})
+  Favourite.findOneAndDelete({ houseId: homeId })
     .then((result) => {
       console.log("Fav Removed: ", result);
     })
