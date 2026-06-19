@@ -9,6 +9,7 @@ require("dotenv").config();
 // Local Module
 const storeRouter = require("./routes/storeRouter");
 const hostRouter = require("./routes/hostRouter");
+const authRouter = require("./routes/authRouter");
 const rootDir = require("./utils/pathUtil");
 const errorsController = require("./controllers/errors");
 
@@ -22,6 +23,7 @@ app.use(express.static(path.join(rootDir, "public")));
 
 app.use(storeRouter);
 app.use("/host", hostRouter);
+app.use(authRouter);
 
 app.use(errorsController.pageNotFound);
 
