@@ -3,8 +3,9 @@
     <ul class="flex space-x-4">
       <li>
         <a href="/"
-          class="<%= currentPage === 'index' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">airbnb</a>
+          class="<%= currentPage === 'index' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">StayFinder</a>
       </li>
+      <% if(isLoggedIn) { %>
       <li>
         <a href="/homes"
           class="<%= currentPage === 'Home' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Homes-List</a>
@@ -27,11 +28,23 @@
           class="<%= currentPage === 'addHome' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Add
           Home</a>
       </li>
+      <% } %>  
       <li>
-        <a href="/login"
-          class="px-5 py-2 text-amber-600 border border-amber-500 rounded-lg font-medium hover:bg-amber-500 hover:text-white transition-all duration-300">
-          Login
-        </a>
+        <% if (!isLoggedIn) { %>
+          <a
+            href="/login"
+            class="hover:bg-red-400 py-2 px-4 rounded transition duration-300"
+            >Login</a
+          >
+        <% } else { %>
+          <form action="/logout" method="POST">
+            <button
+              type="submit"
+              class="hover:bg-red-400 py-2 px-4 rounded transition duration-300"
+              >Logout</button
+            >
+          </form>
+        <% } %>  
       </li>
     </ul>
   </nav>

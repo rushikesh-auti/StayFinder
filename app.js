@@ -15,19 +15,32 @@ const errorsController = require("./controllers/errors");
 
 const app = express();
 
+app.use(express.static(path.join(rootDir, "public")));
+
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(rootDir, "public")));
+app.use((req, res, next) => {
+  req.isLoggedIn = req.get('Cookie') ? req.get('Cookie').split('=')[1] === 'true' : false;
+  next();
+});
 
-app.use(storeRouter);
-app.use("/host", hostRouter);
+
 app.use(authRouter);
+app.use(storeRouter);
+app.use("/host", (req, res, next) => {
+  if (req.isLoggedIn) {
+    next();
+  } else {
+    res.redirect("/login");
+  }
+});
+app.use("/host", hostRouter);
 
 app.use(errorsController.pageNotFound);
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3001;
 
 mongoose
   .connect(process.env.DB_PATH)
