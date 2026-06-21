@@ -1,60 +1,79 @@
 <header class="bg-red-500 text-white p-4 shadow-md">
   <nav class="container mx-auto flex justify-between items-center">
-    <ul class="flex space-x-4">
+    <ul class="flex items-center space-x-4">
+
       <li>
         <a href="/"
-          class="<%= currentPage === 'index' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">StayFinder</a>
+          class="<%= currentPage === 'index' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
+          StayFinder
+        </a>
       </li>
+
       <% if(isLoggedIn) { %>
-      <li>
-        <a href="/homes"
-          class="<%= currentPage === 'Home' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Homes-List</a>
-      </li>
-      <li>
-        <a href="/favourites"
-          class="<%= currentPage === 'favourites' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Favourites</a>
-      </li>
-      <li>
-        <a href="/bookings"
-          class="<%= currentPage === 'bookings' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Bookings</a>
-      </li>
-      <li>
-        <a href="/host/host-home-list"
-          class="<%= currentPage === 'host-homes' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Host
-          Homes</a>
-      </li>
-      <li>
-        <a href="/host/add-home"
-          class="<%= currentPage === 'addHome' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Add
-          Home</a>
-      </li>
-      <% } %>  
-      <% if (!isLoggedIn) { %>
+
         <li>
-          <a
-            href="/signup"
-            class="hover:bg-red-400 py-2 px-4 rounded transition duration-300"
-            >SignUp</a
-          >
+          <a href="/homes"
+            class="<%= currentPage === 'Home' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
+            Homes-List
+          </a>
         </li>
+
         <li>
-          <a
-            href="/login"
-            class="hover:bg-red-400 py-2 px-4 rounded transition duration-300"
-            >Login</a
-          >
+          <a href="/favourites"
+            class="<%= currentPage === 'favourites' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
+            Favourites
+          </a>
         </li>
-        <% } else { %>
-          <li>
-          <form action="/logout" method="POST">
-            <button
-              type="submit"
-              class="hover:bg-red-400 py-2 px-4 rounded transition duration-300"
-              >Logout</button
-            >
-          </form>
+
+        <li>
+          <a href="/bookings"
+            class="<%= currentPage === 'bookings' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
+            Bookings
+          </a>
         </li>
-        <% } %>  
+
+        <li>
+          <a href="/host/host-home-list"
+            class="<%= currentPage === 'host-homes' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
+            Host Homes
+          </a>
+        </li>
+
+        <li>
+          <a href="/host/add-home"
+            class="<%= currentPage === 'addHome' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
+            Add Home
+          </a>
+        </li>
+
+        <% } %>
+
+          <% if (!isLoggedIn) { %>
+
+            <li>
+              <a href="/signup"
+                class="<%= currentPage === 'signup' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
+                Sign Up
+              </a>
+            </li>
+
+            <li>
+              <a href="/login"
+                class="<%= currentPage === 'login' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
+                Login
+              </a>
+            </li>
+
+            <% } else { %>
+
+              <li class="flex items-center">
+                <form action="/logout" method="POST" class="m-0">
+                  <button type="submit" class="hover:bg-red-400 py-2 px-4 rounded transition duration-300">
+                    Logout
+                  </button>
+                </form>
+              </li>
+              <% } %>
     </ul>
   </nav>
 </header>
