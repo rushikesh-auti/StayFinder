@@ -89,8 +89,8 @@ exports.postSignup = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(422).render('auth/signup', {
-        pageTitle: 'SignUp',
+      return res.status(422).render("auth/signup", {
+        pageTitle: "Signup",
         currentPage: "signup",
         isLoggedIn: false,
         errors: errors.array().map((err) => err.msg),
@@ -98,32 +98,61 @@ exports.postSignup = [
           firstName,
           lastName,
           email,
-          userType
-        }
+          userType,
+        },
       });
     }
 
-    const user = new User({ firstName, lastName, email, password, userType });
-    user.save().then(() => {
-      res.redirect('/login');
-    }).catch(err => {
-      console.log("Error While Saving User:", err);
-      return res.status(422).render('auth/signup', {
-        pageTitle: 'SignUp',
-        currentPage: "signup",
-        isLoggedIn: false,
-        errors: [err.message],
-        oldInput: {
+    // To check existing user
+    User.findOne({ email })
+      .then((existingUser) => {
+        if (existingUser) {
+          return res.status(422).render("auth/signup", {
+            pageTitle: "Signup",
+            currentPage: "signup",
+            isLoggedIn: false,
+            errors: ["Email already exists"],
+            oldInput: {
+              firstName,
+              lastName,
+              email,
+              userType,
+            },
+          });
+        }
+
+        const user = new User({
           firstName,
           lastName,
           email,
-          userType
+          password,
+          userType,
+        });
+        return user.save();
+      })
+      .then((savedUser) => {
+        if (savedUser) {
+          return res.redirect("/login");
         }
+      })
+      .catch((err) => {
+        console.log("Error While Saving User:", err);
+
+        return res.status(500).render("auth/signup", {
+          pageTitle: "Signup",
+          currentPage: "signup",
+          isLoggedIn: false,
+          errors: ["Something went wrong. Please try again."],
+          oldInput: {
+            firstName,
+            lastName,
+            email,
+            userType,
+          },
+        });
       });
-    });
   }
 ];
-
 
 exports.postLogin = (req, res, next) => {
   console.log(req.body);
