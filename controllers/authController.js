@@ -6,7 +6,11 @@ exports.getLogin = (req, res, next) => {
   res.render("auth/login", {
     pageTitle: "Login",
     currentPage: "login",
-    isLoggedIn: false
+    isLoggedIn: false,
+    errors: [],
+    oldInput: {
+      email: ""
+    }
   });
 };
 
@@ -160,11 +164,52 @@ exports.postSignup = [
   }
 ];
 
-exports.postLogin = (req, res, next) => {
-  console.log(req.body);
-  req.session.isLoggedIn = true;
-  // res.cookie("isLoggedIn", true);
-  res.redirect("/");
+exports.postLogin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(422).render("auth/login", {
+        pageTitle: "Login",
+        currentPage: "login",
+        isLoggedIn: false,
+        errors: ["Invalid email or password"],
+        oldInput: { email }
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(422).render("auth/login", {
+        pageTitle: "Login",
+        currentPage: "login",
+        isLoggedIn: false,
+        errors: ["Invalid email or password"],
+        oldInput: { email }
+      });
+    }
+
+    req.session.isLoggedIn = true;
+    req.session.user = user;
+
+    req.session.save(() => {
+      res.redirect("/");
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).render("auth/login", {
+      pageTitle: "Login",
+      currentPage: "login",
+      isLoggedIn: false,
+      errors: ["Something went wrong. Please try again."],
+      oldInput: { email: req.body.email }
+    });
+  }
 };
 
 exports.postLogout = (req, res, next) => {
