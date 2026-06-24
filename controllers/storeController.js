@@ -8,6 +8,7 @@ exports.getIndex = (req, res, next) => {
       pageTitle: "StayFinder Home",
       currentPage: "index",
       isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
     });
   });
 };
@@ -19,6 +20,7 @@ exports.getHomes = (req, res, next) => {
       pageTitle: "Homes List",
       currentPage: "Home",
       isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
     });
   });
 };
@@ -28,12 +30,13 @@ exports.getBookings = (req, res, next) => {
     pageTitle: "My Bookings",
     currentPage: "bookings",
     isLoggedIn: req.isLoggedIn,
+    user: req.session.user,
   });
 };
 
 exports.getFavouriteList = (req, res, next) => {
   Favourite.find()
-    .populate('houseId')
+    .populate("houseId")
     .then((favourites) => {
       const favouriteHomes = favourites.map((fav) => fav.houseId);
       res.render("store/favourite-list", {
@@ -41,25 +44,28 @@ exports.getFavouriteList = (req, res, next) => {
         pageTitle: "My Favourites",
         currentPage: "favourites",
         isLoggedIn: req.isLoggedIn,
+        user: req.session.user,
       });
     });
 };
 
 exports.postAddToFavourite = (req, res, next) => {
   const homeId = req.body.id;
-  Favourite.findOne({ houseId: homeId }).then((fav) => {
-    if (fav) {
-      console.log("Already marked as favourite");
-    } else {
-      fav = new Favourite({ houseId: homeId });
-      fav.save().then((result) => {
-        console.log("Fav added: ", result);
-      });
-    }
-    res.redirect("/favourites");
-  }).catch(err => {
-    console.log("Error while marking favourite: ", err);
-  });
+  Favourite.findOne({ houseId: homeId })
+    .then((fav) => {
+      if (fav) {
+        console.log("Already marked as favourite");
+      } else {
+        fav = new Favourite({ houseId: homeId });
+        fav.save().then((result) => {
+          console.log("Fav added: ", result);
+        });
+      }
+      res.redirect("/favourites");
+    })
+    .catch((err) => {
+      console.log("Error while marking favourite: ", err);
+    });
 };
 
 exports.postRemoveFromFavourite = (req, res, next) => {
@@ -88,6 +94,7 @@ exports.getHomeDetails = (req, res, next) => {
         pageTitle: "Home Detail",
         currentPage: "Home",
         isLoggedIn: req.isLoggedIn,
+        user: req.session.user,
       });
     }
   });

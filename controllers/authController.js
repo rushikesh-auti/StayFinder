@@ -10,7 +10,8 @@ exports.getLogin = (req, res, next) => {
     errors: [],
     oldInput: {
       email: ""
-    }
+    },
+    user: {},
   });
 };
 
@@ -21,6 +22,7 @@ exports.getSignup = (req, res, next) => {
     isLoggedIn: false,
     errors: [],
     oldInput: { firstName: "", lastName: "", email: "", userType: "" },
+    user: {},
   });
 };
 
@@ -105,6 +107,7 @@ exports.postSignup = [
           email,
           userType,
         },
+        user: {},
       });
     }
 
@@ -123,6 +126,7 @@ exports.postSignup = [
               email,
               userType,
             },
+            user: {},
           });
         }
 
@@ -159,6 +163,7 @@ exports.postSignup = [
             email,
             userType,
           },
+          user: {},
         });
       });
   }
@@ -176,7 +181,8 @@ exports.postLogin = async (req, res, next) => {
         currentPage: "login",
         isLoggedIn: false,
         errors: ["Invalid email or password"],
-        oldInput: { email }
+        oldInput: { email },
+        user: {},
       });
     }
 
@@ -188,14 +194,19 @@ exports.postLogin = async (req, res, next) => {
         currentPage: "login",
         isLoggedIn: false,
         errors: ["Invalid email or password"],
-        oldInput: { email }
+        oldInput: { email },
+        user: {},
       });
     }
 
     req.session.isLoggedIn = true;
+
     req.session.user = user;
 
-    req.session.save(() => {
+    await req.session.save((err) => {
+      if (err) {
+        console.log(err);
+      }
       res.redirect("/");
     });
 
@@ -207,7 +218,8 @@ exports.postLogin = async (req, res, next) => {
       currentPage: "login",
       isLoggedIn: false,
       errors: ["Something went wrong. Please try again."],
-      oldInput: { email: req.body.email }
+      oldInput: { email: req.body.email },
+      user: {},
     });
   }
 };
