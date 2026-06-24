@@ -19,6 +19,7 @@
     "tailwindcss": "^3.4.13"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "body-parser": "^1.20.3",
     "connect-mongodb-session": "^5.0.0",
     "dotenv": "^17.4.2",
