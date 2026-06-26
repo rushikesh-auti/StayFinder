@@ -1,80 +1,73 @@
-<header class="bg-red-500 text-white p-4 shadow-md">
-  <nav class="container mx-auto flex justify-between items-center">
-    <ul class="flex items-center space-x-4">
+<header class="bg-red-500 text-white shadow-md">
+  <nav class="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
 
-      <li>
-        <a href="/"
-          class="<%= currentPage === 'index' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
-          StayFinder
-        </a>
-      </li>
+    <!-- Brand -->
+    <a href="/" class="<%= currentPage === 'index' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300 font-semibold text-lg whitespace-nowrap">
+      StayFinder
+    </a>
 
-      <% if(isLoggedIn) { %>
-        <% if(user && user.userType==='guest' ) { %>
-          <li>
-            <a href="/homes"
-              class="<%= currentPage === 'Home' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
-              Homes-List
-            </a>
-          </li>
+    <!-- Center: Nav Links (desktop only) -->
+    <div class="hidden md:flex items-center gap-1 flex-1">
+      <% if (isLoggedIn) { %>
+        <% if (user && user.userType === 'guest') { %>
+          <a href="/homes"      class="<%= currentPage === 'Home'       ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Homes-List</a>
+          <a href="/favourites" class="<%= currentPage === 'favourites' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Favourites</a>
+          <a href="/bookings"   class="<%= currentPage === 'bookings'   ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Bookings</a>
+        <% } else { %>
+          <a href="/host/host-home-list" class="<%= currentPage === 'host-homes' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Host Homes</a>
+          <a href="/host/add-home"       class="<%= currentPage === 'addHome'    ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Add Home</a>
+        <% } %>
+      <% } %>
+    </div>
 
-          <li>
-            <a href="/favourites"
-              class="<%= currentPage === 'favourites' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
-              Favourites
-            </a>
-          </li>
+    <!-- Right: Auth always visible + hamburger for nav links on mobile -->
+    <div class="flex items-center gap-2 ml-auto">
 
-          <li>
-            <a href="/bookings"
-              class="<%= currentPage === 'bookings' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
-              Bookings
-            </a>
-          </li>
-          <%} else {%>
+      <!-- Auth Buttons (always visible) -->
+      <% if (!isLoggedIn) { %>
+        <a href="/signup" class="<%= currentPage === 'signup' ? 'bg-red-600 font-medium' : 'hover:bg-red-400' %> py-2 px-4 rounded-lg transition duration-300 border border-white whitespace-nowrap text-sm">Sign Up</a>
+        <a href="/login"  class="<%= currentPage === 'login'  ? 'bg-red-50 text-red-600 font-medium' : 'bg-white text-red-500 hover:bg-red-50' %> py-2 px-4 rounded-lg transition duration-300 font-medium whitespace-nowrap text-sm">Login</a>
+      <% } else { %>
+        <form action="/logout" method="POST">
+          <button type="submit" class="hover:bg-red-400 py-2 px-4 rounded-lg transition duration-300 border border-white flex items-center gap-1 whitespace-nowrap text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+              <path fill-rule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm5.03 4.72a.75.75 0 010 1.06l-1.72 1.72h10.94a.75.75 0 010 1.5H10.81l1.72 1.72a.75.75 0 11-1.06 1.06l-3-3a.75.75 0 010-1.06l3-3a.75.75 0 011.06 0z" clip-rule="evenodd"/>
+            </svg>
+            Logout
+          </button>
+        </form>
+      <% } %>
 
-            <li>
-              <a href="/host/host-home-list"
-                class="<%= currentPage === 'host-homes' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
-                Host Homes
-              </a>
-            </li>
+      <!-- Hamburger (mobile only) — for nav links -->
+      <% if (isLoggedIn) { %>
+        <button onclick="toggleNav()" class="md:hidden p-2 rounded-lg hover:bg-red-400 transition duration-300" aria-label="Toggle menu">
+          <svg id="icon-open"  class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <svg id="icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      <% } %>
 
-            <li>
-              <a href="/host/add-home"
-                class="<%= currentPage === 'addHome' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
-                Add Home
-              </a>
-            </li>
-            <% } %>
-              <% } %>
-
-                <% if (!isLoggedIn) { %>
-
-                  <li>
-                    <a href="/signup"
-                      class="<%= currentPage === 'signup' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
-                      Sign Up
-                    </a>
-                  </li>
-
-                  <li>
-                    <a href="/login"
-                      class="<%= currentPage === 'login' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">
-                      Login
-                    </a>
-                  </li>
-
-                  <% } else { %>
-
-                    <li class="flex items-center">
-                      <form action="/logout" method="POST" class="m-0">
-                        <button type="submit" class="hover:bg-red-400 py-2 px-4 rounded transition duration-300">
-                          Logout
-                        </button>
-                      </form>
-                    </li>
-                    <% } %>
-    </ul>
+    </div>
   </nav>
+
+  <!-- Mobile Dropdown (nav links only, shown when logged in) -->
+  <% if (isLoggedIn) { %>
+    <div id="mobile-menu" class="hidden md:hidden border-t border-red-400 px-4 pb-4 pt-2 flex flex-col gap-1">
+      <% if (user && user.userType === 'guest') { %>
+        <a href="/homes"      class="<%= currentPage === 'Home'       ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Homes-List</a>
+        <a href="/favourites" class="<%= currentPage === 'favourites' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Favourites</a>
+        <a href="/bookings"   class="<%= currentPage === 'bookings'   ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Bookings</a>
+      <% } else { %>
+        <a href="/host/host-home-list" class="<%= currentPage === 'host-homes' ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Host Homes</a>
+        <a href="/host/add-home"       class="<%= currentPage === 'addHome'    ? 'bg-red-400' : 'hover:bg-red-400' %> py-2 px-4 rounded transition duration-300">Add Home</a>
+      <% } %>
+    </div>
+  <% } %>
 </header>
+
+<script>
+  function toggleNav() {
+    document.getElementById('mobile-menu').classList.toggle('hidden');
+    document.getElementById('icon-open').classList.toggle('hidden');
+    document.getElementById('icon-close').classList.toggle('hidden');
+  }
+</script>
