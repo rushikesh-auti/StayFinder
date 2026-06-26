@@ -32,15 +32,16 @@ const userSchema = new mongoose.Schema(
       default: "guest",
     },
 
-    favourites: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Home'
-    }]
-
+    favourites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Home",
+      },
+    ],
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("User", userSchema);
