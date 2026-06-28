@@ -1,5 +1,18 @@
 const Home = require("../models/home");
-const fs = require('fs');
+const cloudinary = require('../config/cloudinary');
+
+const streamUpload = (buffer, folder = "StayFinder") => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder },
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      },
+    );
+    stream.end(buffer);
+  });
+};
 
 exports.getAddHome = (req, res, next) => {
   res.render("host/edit-home", {
@@ -45,74 +58,87 @@ exports.getHostHomes = (req, res, next) => {
   });
 };
 
-exports.postAddHome = (req, res, next) => {
+exports.postAddHome = async (req, res, next) => {
   const { houseName, price, location, rating, description } =
     req.body;
-  const photo = req.file.path;
-  console.log(houseName, price, location, rating, description);
-  console.log(req.file);
 
   if (!req.file) {
     return res.status(422).send("No Image Provided");
   }
+
+  const result = await streamUpload(req.file.buffer, "StayFinder");
 
   const home = new Home({
     houseName,
     price,
     location,
     rating,
-    photo,
     description,
+    photo: result.secure_url,
+    photoId: result.public_id,
   });
-  home.save().then(() => {
+  await home.save().then(() => {
     console.log("Home Saved successfully");
   });
   res.redirect("/host/host-home-list");
 };
 
-exports.postEditHome = (req, res, next) => {
-  const { id, houseName, price, location, rating, description } =
-    req.body;
-  Home.findById(id)
-    .then((home) => {
-      home.houseName = houseName;
-      home.price = price;
-      home.location = location;
-      home.rating = rating;
-      home.description = description;
+exports.postEditHome = async (req, res) => {
+  try {
+    const { id, houseName, price, location, rating, description } = req.body;
 
-      if (req.file) {
-        fs.unlink(home.photo, (err) => {
-          if (err) {
-            console.log("Error While Deleting File", err);
-          }
-        })
-        home.photo = req.file.path;
+    const home = await Home.findById(id);
+
+    if (!home) {
+      return res.redirect("/host/host-home-list");
+    }
+
+    home.houseName = houseName;
+    home.price = price;
+    home.location = location;
+    home.rating = rating;
+    home.description = description;
+
+    if (req.file) {
+
+      if (home.photoId) {
+        await cloudinary.uploader.destroy(home.photoId);
       }
 
-      home
-        .save()
-        .then((result) => {
-          console.log("Home updated ", result);
-        })
-        .catch((err) => {
-          console.log("Error while updating ", err);
-        });
-      res.redirect("/host/host-home-list");
-    })
-    .catch((err) => {
-      console.log("Error while finding home ", err);
-    });
+      const result = await streamUpload(req.file.buffer, "StayFinder");
+
+      home.photo = result.secure_url;
+      home.photoId = result.public_id;
+    }
+
+    await home.save();
+
+    console.log("Home updated");
+    res.redirect("/host/host-home-list");
+
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-exports.postDeleteHome = (req, res, next) => {
-  const homeId = req.params.homeId;
-  console.log("Came to delete ", homeId);
-  Home.findByIdAndDelete(homeId)
-    .then(() => {
-      res.redirect("/host/host-home-list");
-    })
-    .catch((error) => {
-      console.log("Error while deleting ", error);
-    });
+exports.postDeleteHome = async (req, res) => {
+    try {
+
+        const home = await Home.findById(req.params.homeId);
+
+        if (!home) {
+            return res.redirect("/host/host-home-list");
+        }
+
+        if (home.photoId) {
+            await cloudinary.uploader.destroy(home.photoId);
+        }
+
+        await Home.findByIdAndDelete(home._id);
+
+        res.redirect("/host/host-home-list");
+
+    } catch (err) {
+        console.log(err);
+    }
 };

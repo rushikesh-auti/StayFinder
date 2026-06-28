@@ -17,14 +17,9 @@ const homeSchema = mongoose.Schema({
     type: Number,
     required: true
   },
-  photo: String,
+  photo: String,      // URL
+  photoId: String,    // Cloudinary public_id
   description: String,
 });
-
-// homeSchema.pre('findOneAndDelete', async function (next) {
-//   console.log('Came to pre hook while deleting a home');
-//   const homeId = this.getQuery()._id;
-//   await favourite.deleteMany({ houseId: homeId });
-// });
 
 module.exports = mongoose.model('Home', homeSchema);
