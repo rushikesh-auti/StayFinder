@@ -1,9 +1,8 @@
 const Home = require("../models/home");
 const cloudinary = require("../config/cloudinary");
-require("dotenv").config();
 
-const streamUpload = (buffer, folder = process.env.SESSION_SECRET) =>
-  new Promise((resolve, reject) => {
+const streamUpload = (buffer, folder = "StayFinder") => {
+  return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       { folder },
       (error, result) => {
@@ -14,6 +13,7 @@ const streamUpload = (buffer, folder = process.env.SESSION_SECRET) =>
 
     stream.end(buffer);
   });
+};
 
 exports.getAddHome = (req, res) => {
   res.render("host/edit-home", {
@@ -21,6 +21,7 @@ exports.getAddHome = (req, res) => {
     currentPage: "addHome",
     editing: false,
     errorMessage: null,
+    home: {},
     isLoggedIn: req.isLoggedIn,
     user: req.session.user,
   });
@@ -31,29 +32,37 @@ exports.getEditHome = async (req, res) => {
     const { homeId } = req.params;
     const editing = req.query.editing === "true";
 
-    const home = await Home.findById(homeId);
+    const home = await Home.findById(homeId).lean();
 
     if (!home) {
       return res.redirect("/host/host-home-list");
     }
 
     res.render("host/edit-home", {
-      home,
       pageTitle: "Edit Your Home",
       currentPage: "host-homes",
       editing,
+      home,
       errorMessage: null,
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,
     });
+
   } catch (err) {
     console.error("Error loading home:", err);
+
+    res.status(500).render("500", {
+      pageTitle: "Server Error",
+      errorMessage: "Something went wrong.",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
   }
 };
 
 exports.getHostHomes = async (req, res) => {
   try {
-    const registeredHomes = await Home.find();
+    const registeredHomes = await Home.find().lean();
 
     res.render("host/host-home-list", {
       registeredHomes,
@@ -62,17 +71,39 @@ exports.getHostHomes = async (req, res) => {
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,
     });
+
   } catch (err) {
     console.error("Error fetching homes:", err);
+
+    res.status(500).render("500", {
+      pageTitle: "Server Error",
+      errorMessage: "Something went wrong.",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
   }
 };
 
 exports.postAddHome = async (req, res) => {
   try {
-    const { houseName, price, location, rating, description } = req.body;
+    const {
+      houseName,
+      price,
+      location,
+      rating,
+      description,
+    } = req.body;
 
     if (!req.file) {
-      return res.status(422).send("No image provided.");
+      return res.status(422).render("host/edit-home", {
+        pageTitle: "Add Home to Airbnb",
+        currentPage: "addHome",
+        editing: false,
+        errorMessage: "Please upload an image.",
+        home: req.body,
+        isLoggedIn: req.isLoggedIn,
+        user: req.session.user,
+      });
     }
 
     const result = await streamUpload(req.file.buffer);
@@ -89,17 +120,35 @@ exports.postAddHome = async (req, res) => {
 
     await home.save();
 
-    console.log("Home saved successfully.");
+    console.info("Home saved successfully.");
+
     res.redirect("/host/host-home-list");
+
   } catch (err) {
     console.error("Error adding home:", err);
-    res.status(500).send("Internal Server Error");
+
+    res.status(500).render("host/edit-home", {
+      pageTitle: "Add Home to Airbnb",
+      currentPage: "addHome",
+      editing: false,
+      errorMessage: "Failed to add home. Please try again.",
+      home: req.body,
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
   }
 };
 
 exports.postEditHome = async (req, res) => {
   try {
-    const { id, houseName, price, location, rating, description } = req.body;
+    const {
+      id,
+      houseName,
+      price,
+      location,
+      rating,
+      description,
+    } = req.body;
 
     const home = await Home.findById(id);
 
@@ -114,10 +163,17 @@ exports.postEditHome = async (req, res) => {
     home.description = description;
 
     if (req.file) {
+
+      // Upload new image
       const result = await streamUpload(req.file.buffer);
 
-      if (home.photoId) {
-        await cloudinary.uploader.destroy(home.photoId);
+      // Delete old image
+      try {
+        if (home.photoId) {
+          await cloudinary.uploader.destroy(home.photoId);
+        }
+      } catch (cloudinaryError) {
+        console.error("Cloudinary delete failed:", cloudinaryError.message);
       }
 
       home.photo = result.secure_url;
@@ -126,32 +182,65 @@ exports.postEditHome = async (req, res) => {
 
     await home.save();
 
-    console.log("Home updated successfully.");
+    console.info("Home updated successfully.");
+
     res.redirect("/host/host-home-list");
+
   } catch (err) {
     console.error("Error updating home:", err);
-    res.status(500).send("Internal Server Error");
+
+    const home = {
+      _id: req.body.id,
+      houseName: req.body.houseName,
+      price: req.body.price,
+      location: req.body.location,
+      rating: req.body.rating,
+      description: req.body.description,
+    };
+
+    res.status(500).render("host/edit-home", {
+      pageTitle: "Edit Your Home",
+      currentPage: "host-homes",
+      editing: true,
+      home,
+      errorMessage: "Failed to update home. Please try again.",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
   }
 };
 
 exports.postDeleteHome = async (req, res) => {
   try {
+
     const home = await Home.findById(req.params.homeId);
 
     if (!home) {
       return res.redirect("/host/host-home-list");
     }
 
-    if (home.photoId) {
-      await cloudinary.uploader.destroy(home.photoId);
+    try {
+      if (home.photoId) {
+        await cloudinary.uploader.destroy(home.photoId);
+      }
+    } catch (cloudinaryError) {
+      console.error("Cloudinary delete failed:", cloudinaryError.message);
     }
 
     await Home.findByIdAndDelete(home._id);
 
-    console.log("Home deleted successfully.");
+    console.info("Home deleted successfully.");
+
     res.redirect("/host/host-home-list");
+
   } catch (err) {
     console.error("Error deleting home:", err);
-    res.status(500).send("Internal Server Error");
+
+    res.status(500).render("500", {
+      pageTitle: "Server Error",
+      errorMessage: "Something went wrong.",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
   }
 };
