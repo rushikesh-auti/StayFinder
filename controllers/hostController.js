@@ -1,5 +1,5 @@
 const Home = require("../models/home");
-const cloudinary = require('../config/cloudinary');
+const cloudinary = require("../config/cloudinary");
 
 const streamUpload = (buffer, folder = "StayFinder") => {
   return new Promise((resolve, reject) => {
@@ -24,75 +24,80 @@ exports.getAddHome = (req, res, next) => {
   });
 };
 
-exports.getEditHome = (req, res, next) => {
-  const homeId = req.params.homeId;
-  const editing = req.query.editing === "true";
+exports.getEditHome = async (req, res) => {
+  try {
+    const homeId = req.params.homeId;
+    const editing = req.query.editing === "true";
+    const home = await Home.findById(homeId);
 
-  Home.findById(homeId).then((home) => {
     if (!home) {
-      console.log("Home not found for editing.");
       return res.redirect("/host/host-home-list");
     }
 
-    console.log(homeId, editing, home);
     res.render("host/edit-home", {
-      home: home,
+      home,
       pageTitle: "Edit your Home",
       currentPage: "host-homes",
-      editing: editing,
+      editing,
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,
     });
-  });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-exports.getHostHomes = (req, res, next) => {
-  Home.find().then((registeredHomes) => {
+exports.getHostHomes = async (req, res) => {
+  try {
+    const registeredHomes = await Home.find();
+
     res.render("host/host-home-list", {
-      registeredHomes: registeredHomes,
+      registeredHomes,
       pageTitle: "Host Homes List",
       currentPage: "host-homes",
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,
     });
-  });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-exports.postAddHome = async (req, res, next) => {
-  const { houseName, price, location, rating, description } =
-    req.body;
+exports.postAddHome = async (req, res) => {
+  try {
+    const { houseName, price, location, rating, description } = req.body;
+    if (!req.file) {
+      return res.status(422).send("No Image Provided");
+    }
+    const result = await streamUpload(req.file.buffer, "StayFinder");
 
-  if (!req.file) {
-    return res.status(422).send("No Image Provided");
+    const home = new Home({
+      houseName,
+      price,
+      location,
+      rating,
+      description,
+      photo: result.secure_url,
+      photoId: result.public_id,
+    });
+
+    await home.save();
+    console.log("Home Saved Successfully");
+    res.redirect("/host/host-home-list");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
   }
-
-  const result = await streamUpload(req.file.buffer, "StayFinder");
-
-  const home = new Home({
-    houseName,
-    price,
-    location,
-    rating,
-    description,
-    photo: result.secure_url,
-    photoId: result.public_id,
-  });
-  await home.save().then(() => {
-    console.log("Home Saved successfully");
-  });
-  res.redirect("/host/host-home-list");
 };
 
 exports.postEditHome = async (req, res) => {
   try {
     const { id, houseName, price, location, rating, description } = req.body;
-
     const home = await Home.findById(id);
 
     if (!home) {
       return res.redirect("/host/host-home-list");
     }
-
     home.houseName = houseName;
     home.price = price;
     home.location = location;
@@ -100,45 +105,38 @@ exports.postEditHome = async (req, res) => {
     home.description = description;
 
     if (req.file) {
+      const result = await streamUpload(req.file.buffer, "StayFinder");
 
       if (home.photoId) {
         await cloudinary.uploader.destroy(home.photoId);
       }
-
-      const result = await streamUpload(req.file.buffer, "StayFinder");
-
+      // Save the new image details
       home.photo = result.secure_url;
       home.photoId = result.public_id;
     }
-
     await home.save();
-
     console.log("Home updated");
     res.redirect("/host/host-home-list");
-
   } catch (err) {
     console.log(err);
   }
 };
 
 exports.postDeleteHome = async (req, res) => {
-    try {
+  try {
+    const home = await Home.findById(req.params.homeId);
 
-        const home = await Home.findById(req.params.homeId);
-
-        if (!home) {
-            return res.redirect("/host/host-home-list");
-        }
-
-        if (home.photoId) {
-            await cloudinary.uploader.destroy(home.photoId);
-        }
-
-        await Home.findByIdAndDelete(home._id);
-
-        res.redirect("/host/host-home-list");
-
-    } catch (err) {
-        console.log(err);
+    if (!home) {
+      return res.redirect("/host/host-home-list");
     }
+
+    if (home.photoId) {
+      await cloudinary.uploader.destroy(home.photoId);
+    }
+
+    await Home.findByIdAndDelete(home._id);
+    res.redirect("/host/host-home-list");
+  } catch (err) {
+    console.log(err);
+  }
 };

@@ -27,12 +27,10 @@ const store = new MongoDBStore({
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-}
+  const allowed = ["image/png", "image/jpeg", "image/jpg"];
+
+  cb(null, allowed.includes(file.mimetype));
+};
 
 const multerOptions = {
   storage: multer.memoryStorage(), fileFilter
@@ -44,10 +42,10 @@ app.use(express.json());
 app.use(express.static(path.join(rootDir, "public")));
 
 app.use(session({
-  secret: "StayFinder",
+  secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true,
-  store
+  saveUninitialized: false,
+  store,
 }));
 
 app.use((req, res, next) => {
