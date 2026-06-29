@@ -5,6 +5,11 @@
   <main class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-md">
       <h1 class="text-3xl font-bold mb-6 text-center text-gray-800"><%= editing ? "Edit" : "Register"%> Your Property </h1>
       <form action="/host/<%= editing ? "edit-home" : "add-home"%>" method="POST" class="max-w-md mx-auto" enctype="multipart/form-data">
+      <% if (errorMessage) { %>
+      <div class="mb-5 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-600">
+      <%= errorMessage %>
+      </div>
+      <% } %>
         <input type="hidden" name="id" value="<%= editing ? home._id : ''%>" />
         <input
           type="text"

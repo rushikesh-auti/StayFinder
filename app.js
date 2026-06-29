@@ -33,13 +33,15 @@ const fileFilter = (req, file, cb) => {
 };
 
 const multerOptions = {
-  storage: multer.memoryStorage(), fileFilter
+  storage: multer.memoryStorage(),
+  fileFilter,
+  limits: {
+    fileSize: 500 * 1024,
+  },
 };
 
 app.use(express.urlencoded({ extended: true }));
-app.use(multer(multerOptions).single('photo'));
 app.use(express.json());
-app.use(express.static(path.join(rootDir, "public")));
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -53,6 +55,9 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(multer(multerOptions).single("photo"));
+app.use(express.static(path.join(rootDir, "public")));
+
 app.use(authRouter);
 app.use(storeRouter);
 app.use("/host", (req, res, next) => {
@@ -63,6 +68,34 @@ app.use("/host", (req, res, next) => {
   }
 });
 app.use("/host", hostRouter);
+
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError &&
+      err.code === "LIMIT_FILE_SIZE") {
+
+    return res.status(400).render("host/edit-home", {
+      pageTitle: req.body.id ? "Edit Home" : "Add Home",
+      currentPage: req.body.id ? "host-homes" : "addHome",
+      editing: !!req.body.id,
+
+      home: {
+        _id: req.body.id || "",
+        houseName: req.body.houseName || "",
+        price: req.body.price || "",
+        location: req.body.location || "",
+        rating: req.body.rating || "",
+        description: req.body.description || "", 
+      },
+
+      errorMessage: "Image size must be less than 500 KB.",
+
+      isLoggedIn: req.session?.isLoggedIn,
+      user: req.session?.user,
+    });
+  }
+
+  next(err);
+});
 
 app.use(errorsController.pageNotFound);
 
