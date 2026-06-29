@@ -17,7 +17,7 @@ const streamUpload = (buffer, folder = "StayFinder") => {
 
 exports.getAddHome = (req, res) => {
   res.render("host/edit-home", {
-    pageTitle: "Add Home to Airbnb",
+    pageTitle: "Add Home",
     currentPage: "addHome",
     editing: false,
     errorMessage: null,
@@ -39,7 +39,7 @@ exports.getEditHome = async (req, res) => {
     }
 
     res.render("host/edit-home", {
-      pageTitle: "Edit Your Home",
+      pageTitle: "Edit Home",
       currentPage: "host-homes",
       editing,
       home,
@@ -96,7 +96,7 @@ exports.postAddHome = async (req, res) => {
 
     if (!req.file) {
       return res.status(422).render("host/edit-home", {
-        pageTitle: "Add Home to Airbnb",
+        pageTitle: "Add Home",
         currentPage: "addHome",
         editing: false,
         errorMessage: "Please upload an image.",
@@ -128,7 +128,7 @@ exports.postAddHome = async (req, res) => {
     console.error("Error adding home:", err);
 
     res.status(500).render("host/edit-home", {
-      pageTitle: "Add Home to Airbnb",
+      pageTitle: "Add Home",
       currentPage: "addHome",
       editing: false,
       errorMessage: "Failed to add home. Please try again.",
@@ -199,7 +199,7 @@ exports.postEditHome = async (req, res) => {
     };
 
     res.status(500).render("host/edit-home", {
-      pageTitle: "Edit Your Home",
+      pageTitle: "Edit Home",
       currentPage: "host-homes",
       editing: true,
       home,
