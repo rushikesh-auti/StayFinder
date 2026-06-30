@@ -1,6 +1,17 @@
-<form action="/favourites" method="POST">
-  <button type="submit"
-    class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">Add
-    to Favourite</button>
+<% if (isLoggedIn) { %>
+<form action="/favourites" method="POST" class="inline-block">
   <input type="hidden" name="id" value="<%= home._id %>">
+
+  <button
+    type="submit"
+    class="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 font-semibold text-white transition-all duration-300 hover:bg-secondary hover:shadow-lg">
+     Add to Favourite
+  </button>
 </form>
+<% } else { %>
+<a
+  href="/login"
+  class="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 font-semibold text-white transition-all duration-300 hover:bg-secondary hover:shadow-lg">
+   Add to Favourite
+</a>
+<% } %>
