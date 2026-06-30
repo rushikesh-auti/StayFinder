@@ -1,52 +1,61 @@
-<%- include('../partials/head') %>
-     
-    <body>
-        <%- include('../partials/nav') %>
-            <main class="container mx-auto bg-white shadow-lg rounded-lg p-8 mt-10 max-w-6xl">
-                <h2 class="text-3xl text-red-500 font-bold text-center mb-6">
-                    Details of <%= home.name %>
-                </h2>
+<%- include("../partials/head") %>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="rounded-lg overflow-hidden">
-                        <img src="<%= home.photo %>" alt="<%= home.name %>" class="w-full h-96 object-cover">
-                    </div>
+<body>
+  <%- include("../partials/nav") %>
+  <main class="container mx-auto mt-10 max-w-6xl rounded-lg bg-white p-8 shadow-lg">
+    <h2 class="mb-6 text-center text-3xl font-bold text-red-500">
+      Details of <%= home.houseName %>
+    </h2>
 
-                    <div class="space-y-6">
-                        <div class="border-b pb-4">
-                            <h3 class="text-2xl font-semibold mb-2">Description</h3>
-                            <p class="text-gray-600">
-                                <%= home.description %>
-                            </p>
-                        </div>
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+      <div class="overflow-hidden rounded-lg">
+        <img
+          src="<%= home.photo %>"
+          alt="<%= home.houseName %>"
+          class="h-96 w-full object-cover"
+        />
+      </div>
 
-                        <div class="border-b pb-4">
-                            <h3 class="text-2xl font-semibold mb-2">Location</h3>
-                            <p class="text-gray-600">
-                                <%= home.location %>
-                            </p>
-                        </div>
+      <div class="space-y-6">
+        <div class="border-b pb-4">
+          <h3 class="mb-2 text-2xl font-semibold">Description</h3>
+          <p class="text-gray-600">
+            <%= home.description %>
+          </p>
+        </div>
 
-                        <div class="border-b pb-4">
-                            <h3 class="text-2xl font-semibold mb-2">Price</h3>
-                            <p class="text-green-600 text-xl font-bold">$<%= home.price %> / night</p>
-                        </div>
+        <div class="border-b pb-4">
+          <h3 class="mb-2 text-2xl font-semibold">Location</h3>
+          <p class="text-gray-600">
+            <%= home.location %>
+          </p>
+        </div>
 
-                        <div class="border-b pb-4">
-                            <h3 class="text-2xl font-semibold mb-2">Rating</h3>
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 text-xl">★</span>
-                                <span class="ml-2 text-lg">
-                                    <%= home.rating %> / 5
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <%- include('../partials/favourite') %>
-                        </div>
-                    </div>
-                </div>
-            </main>
-    </body>
+        <div class="border-b pb-4">
+          <h3 class="mb-2 text-2xl font-semibold">Price</h3>
+          <p class="text-xl font-bold text-green-600">
+            $<%= home.price %> / night
+          </p>
+        </div>
 
-    </html>
+        <div class="border-b pb-4">
+          <h3 class="mb-2 text-2xl font-semibold">Rating</h3>
+
+          <div class="flex items-center">
+            <span class="text-xl text-yellow-400">★</span>
+
+            <span class="ml-2 text-lg">
+              <%= home.rating %> / 5
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <%- include("../partials/favourite") %>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+
+</html>
