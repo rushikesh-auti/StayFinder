@@ -1,80 +1,129 @@
 <%- include('../partials/head') %>
 
-<body>
-  <%- include('../partials/nav') %>
-
-  <main
-    class="container mx-auto mt-10 max-w-6xl rounded-lg bg-white p-8 shadow-lg"
-  >
-    <h2 class="mb-6 text-center text-3xl font-bold text-red-500">
-      Hey Host! Here are your homes:
-    </h2>
-
-    <div class="flex flex-wrap justify-center gap-6">
-      <% registeredHomes.forEach((home) => { %>
-      <div
-        class="w-full max-w-sm overflow-hidden rounded-lg bg-white shadow-md transition duration-300 hover:shadow-lg"
-      >
-        <img
-          src="<%= home.photo %>"
-          alt="<%= home.houseName %>"
-          class="h-48 w-full object-cover"
-        />
-
-        <div class="p-4">
-          <h3 class="mb-2 text-xl font-semibold text-gray-800">
-            <%= home.houseName %>
-          </h3>
-
-          <p class="mb-2 text-gray-600">
-            <i class="fas fa-map-marker-alt mr-2"></i>
-            <%= home.location %>
+  <body class="bg-background">
+    <%- include('../partials/nav') %>
+      <main class="mx-auto max-w-7xl px-4 py-14">
+        <section class="text-center mt-2 mb-5">
+          <h1 class="text-4xl font-bold text-text">
+            Manage Properties
+          </h1>
+          <p class="mt-3 text-lg text-muted">
+            View, edit and organize all of your listed homes.
           </p>
+        </section>
 
-          <div class="mb-4 flex items-center justify-between">
-            <span class="text-lg font-bold text-red-500">
-              Rs <%= home.price %> / night
-            </span>
+        <% if (registeredHomes.length===0) { %>
+          <section class="flex justify-center mt-16">
 
-            <div class="flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="mr-1 h-5 w-5 text-yellow-400"
-              >
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
-                />
-              </svg>
+            <div class="w-full max-w-md rounded-2xl bg-surface shadow-card p-8 text-center">
+              <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
 
-              <span class="text-gray-700">
-                <%= home.rating %>
-              </span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 10.5L12 3l9 7.5M5 9v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9" />
+
+                </svg>
+
+              </div>
+
+              <h2 class="text-2xl font-bold text-text">
+                No Properties Yet
+              </h2>
+
+              <p class="mt-2 mb-5 text-muted">
+                Add your first property and start hosting guests.
+              </p>
+
+              <a href="/host/add-home"
+                class="mt-6 inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 font-semibold text-white transition hover:bg-secondary">
+                 Add Property
+              </a>
             </div>
-          </div>
+          </section>
 
-          <div class="flex gap-3">
-            <a
-              href="/host/edit-home/<%= home._id %>?editing=true"
-              class="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Edit
-            </a>
+          <% } else { %>
+            <section class="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
+              <% registeredHomes.forEach(home=> { %>
+                <article
+                  class="group overflow-hidden rounded-3xl bg-surface shadow-card transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
 
-            <form action="/host/delete-home/<%= home._id %>" method="POST">
-              <button
-                type="submit"
-                class="rounded bg-red-500 px-4 py-2 text-white transition hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-              >
-                Delete
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-      <% }) %>
-    </div>
-  </main>
+                  <div class="relative overflow-hidden">
+                    <img src="<%= home.photo %>" alt="<%= home.houseName %>"
+                      class="h-64 w-full object-cover transition duration-500 group-hover:scale-110">
+
+                    <div
+                      class="absolute right-4 top-4 rounded-full bg-yellow-100 px-3 py-1 text-sm font-semibold text-yellow-800 shadow">
+
+                      ⭐ <%= home.rating %>
+                    </div>
+                  </div>
+
+                  <div class="p-6">
+                    <h2 class="truncate text-2xl font-bold text-text">
+                      <%= home.houseName %>
+                    </h2>
+
+                    <p class="mt-3 flex items-center gap-2 text-muted">
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 text-primary"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/>
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+
+                <span><%= home.location %></span>
+
+            </p>
+                    <div class="mt-3 flex items-end justify-between">
+                      <div>
+                        <p class="text-3xl font-bold text-primary">
+                          ₹<%= home.price %>
+                        </p>
+
+                        <p class="text-sm text-muted">
+                          per night
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="mt-4 flex gap-3">
+                      <a href="/host/edit-home/<%= home._id %>?editing=true"
+                        class="flex-1 rounded-xl bg-primary py-3 text-center font-semibold text-white transition duration-300 hover:bg-secondary">
+                        Edit
+                      </a>
+
+                      <form action="/host/delete-home/<%= home._id %>" method="POST" class="flex-1">
+
+                        <button type="submit" onclick="return confirm('Delete this property?')"
+                          class="w-full rounded-xl border border-red-500 py-3 font-semibold text-red-500 transition duration-300 hover:bg-red-500 hover:text-white">
+                          Delete
+                        </button>
+                      </form>
+
+                    </div>
+                  </div>
+                </article>
+                <% }) %>
+            </section>
+            <% } %>
+
+      </main>
+  </body>
+
+  </html>
