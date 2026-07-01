@@ -1,51 +1,161 @@
 <%- include('../partials/head') %>
-  </head>
-  <body>
-    <%- include('../partials/nav') %>
-  <main class="container mx-auto mt-8 p-8 bg-white rounded-lg shadow-md">
-      <h1 class="text-3xl font-bold mb-6 text-center text-gray-800"><%= editing ? "Edit" : "Register"%> Your Property </h1>
-      <form action="/host/<%= editing ? "edit-home" : "add-home"%>" method="POST" class="max-w-md mx-auto" enctype="multipart/form-data">
-      <% if (errorMessage) { %>
-      <div class="mb-5 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-600">
-      <%= errorMessage %>
-      </div>
-      <% } %>
-        <input type="hidden" name="id" value="<%= editing ? home._id : ''%>" />
-        <input
-          type="text"
-          name="houseName"
-          value="<%= editing ? home.houseName : ''%>"
-          placeholder="Enter your House Name"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
-        <input
-          type="text"
-          name="price"
-          value="<%= editing ? home.price : ''%>"
-          placeholder="Price Per Night"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
-        <input
-          type="text"
-          name="location"
-          value="<%= editing ? home.location : ''%>"
-          placeholder="Location"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
-        <input
-          type="text"
-          name="rating"
-          value="<%= editing ? home.rating : ''%>"
-          placeholder="Rating"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
-        <input
-          type="file"
-          name="photo"
-          accept="image/jpg, image/jpeg, image/png"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
-        <textarea
-          name="description"
-          placeholder="Describe your home"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"><%= editing ? home.description : ''%></textarea>
-        <input type="submit" value="<%= editing ? "Update Home" : "Add Home"%>" class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition duration-300" />
-      </form>
-    </main>
-  </body>
+
+<body class="bg-background">
+
+<%- include('../partials/nav') %>
+
+<main class="mx-auto max-w-2xl px-4 py-10">
+    <div class="rounded-3xl bg-surface p-8 shadow-card">
+        <h1 class="mb-8 text-center text-4xl font-bold text-text">
+            <%= editing ? "Edit Your Property" : "Add New Property" %>
+        </h1>
+        <% if (errorMessage) { %>
+        <div class="mb-6 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-600">
+            <%= errorMessage %>
+        </div>
+        <% } %>
+
+        <form
+            action="/host/<%= editing ? 'edit-home' : 'add-home' %>"
+            method="POST"
+            enctype="multipart/form-data"
+            class="space-y-6">
+            <input
+                type="hidden"
+                name="id"
+                value="<%= editing ? home._id : '' %>">
+            <div>
+
+                <label class="mb-3 block font-semibold text-text">
+                    Property Image
+                </label>
+
+                <div class="overflow-hidden rounded-2xl border border-border shadow-card">
+                    <img
+                        id="previewImage"
+                        src="<%= editing ? home.photo : 'https://placehold.co/800x450?text=Property+Preview' %>"
+                        class="h-56 w-full object-cover">
+                </div>
+            </div>
+
+            <div>
+                <label class="mb-2 block font-semibold text-text">
+                    Upload Image
+                </label>
+ 
+                <input
+                    id="photo"
+                    type="file"
+                    name="photo"
+                    accept="image/png,image/jpeg,image/jpg"
+                    class="block w-full rounded-xl border border-border bg-background
+                    file:mr-4 file:rounded-lg file:border-0
+                    file:bg-primary file:px-4 file:py-2
+                    file:font-semibold file:text-white
+                    hover:file:bg-secondary">
+            </div>
+
+            <div>
+                <label class="mb-2 block font-semibold text-text">
+                    House Name
+                </label>
+
+                <input
+                    type="text"
+                    name="houseName"
+                    required
+                    value="<%= editing ? home.houseName : '' %>"
+                    placeholder="House Name"
+                    class="w-full rounded-xl border border-border bg-background
+                    px-5 py-3 text-text placeholder-muted
+                    focus:border-primary focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="mb-2 block font-semibold text-text">
+                    Price Per Night
+                </label>
+
+                <input
+                    type="number"
+                    name="price"
+                    required
+                    value="<%= editing ? home.price : '' %>"
+                    placeholder="1200"
+                    class="w-full rounded-xl border border-border bg-background
+                    px-5 py-3 text-text placeholder-muted
+                    focus:border-primary focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="mb-2 block font-semibold text-text">
+                    Location
+                </label>
+
+                <input
+                    type="text"
+                    name="location"
+                    required
+                    value="<%= editing ? home.location : '' %>"
+                    placeholder="Mumbai, Maharashtra"
+                    class="w-full rounded-xl border border-border bg-background
+                    px-5 py-3 text-text placeholder-muted
+                    focus:border-primary focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="mb-2 block font-semibold text-text">
+                    Rating
+                </label>
+
+                <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    name="rating"
+                    required
+                    value="<%= editing ? home.rating : '' %>"
+                    placeholder="4.8"
+                    class="w-full rounded-xl border border-border bg-background
+                    px-5 py-3 text-text placeholder-muted
+                    focus:border-primary focus:ring-2 focus:ring-primary">
+            </div>
+
+            <div>
+                <label class="mb-2 block font-semibold text-text">
+                    Description
+                </label>
+
+                <textarea
+                    name="description"
+                    rows="5"
+                    required
+                    placeholder="Describe your property..."
+                    class="w-full rounded-xl border border-border bg-background
+                    px-5 py-3 text-text placeholder-muted
+                    focus:border-primary focus:ring-2 focus:ring-primary"><%= editing ? home.description : '' %></textarea>
+            </div>
+
+            <button
+                type="submit"
+                class="w-full rounded-xl bg-primary py-4 text-lg font-semibold text-white transition-all duration-300 hover:bg-secondary hover:shadow-lg">
+                <%= editing ? "Update Property" : "Add Property" %>
+            </button>
+        </form>
+    </div>
+</main>
+
+<script>
+const photoInput = document.getElementById("photo");
+const previewImage = document.getElementById("previewImage");
+photoInput?.addEventListener("change", function(e){
+    const file = e.target.files[0];
+    if(file){
+        previewImage.src = URL.createObjectURL(file);
+    }
+});
+</script>
+
+</body>
 </html>
