@@ -80,16 +80,10 @@ exports.postSignup = [
     .isIn(['guest', 'host'])
     .withMessage("Invalid user type"),
 
-  // Terms Accepted
+
   check("terms")
-    .notEmpty()
-    .withMessage("Please accept the terms and conditions")
-    .custom((value, { req }) => {
-      if (value !== "on") {
-        throw new Error("Please accept the terms and conditions");
-      }
-      return true;
-    }),
+    .equals("on")
+    .withMessage("Please accept the terms and conditions"),
 
   (req, res, next) => {
     const { firstName, lastName, email, password, userType } = req.body;
