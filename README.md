@@ -6,7 +6,7 @@ A modern full-stack property rental platform built using **Node.js**, **Express.
 
 ## Live Demo
 
-https://your-live-demo-link.com
+https://stayfinder-m131.onrender.com
 
 ---
 
@@ -121,7 +121,7 @@ StayFinder/
 
 ## Preview
 
-> Add screenshots of your application here.
+<img width="1892" height="902" alt="image" src="https://github.com/user-attachments/assets/e69302e4-f6c2-47a8-b720-3c3e79a72431" />
 
 ---
 
@@ -208,6 +208,10 @@ http://localhost:3000
 ---
 
 ## Deployment
+
+### Application
+
+- Render
 
 ### Database
 
