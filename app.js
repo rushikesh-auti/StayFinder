@@ -13,6 +13,7 @@ const multer = require('multer');
 const storeRouter = require("./routes/storeRouter");
 const hostRouter = require("./routes/hostRouter");
 const authRouter = require("./routes/authRouter");
+const bookingRouter = require("./routes/bookingRouter");
 const rootDir = require("./utils/pathUtil");
 const errorsController = require("./controllers/errors");
 
@@ -60,6 +61,8 @@ app.use(express.static(path.join(rootDir, "public")));
 
 app.use(authRouter);
 app.use(storeRouter);
+app.use("/bookings", bookingRouter);
+
 app.use("/host", (req, res, next) => {
   if (req.isLoggedIn) {
     next();
@@ -71,7 +74,7 @@ app.use("/host", hostRouter);
 
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError &&
-      err.code === "LIMIT_FILE_SIZE") {
+    err.code === "LIMIT_FILE_SIZE") {
 
     return res.status(400).render("host/edit-home", {
       pageTitle: req.body.id ? "Edit Home" : "Add Home",
@@ -84,7 +87,7 @@ app.use((err, req, res, next) => {
         price: req.body.price || "",
         location: req.body.location || "",
         rating: req.body.rating || "",
-        description: req.body.description || "", 
+        description: req.body.description || "",
       },
 
       errorMessage: "Image size must be less than 500 KB.",
