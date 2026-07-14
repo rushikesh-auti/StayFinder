@@ -7,29 +7,91 @@
         <h1 class="text-4xl font-bold text-text">
             My Bookings
         </h1>
-
-        <p class="mt-3 text-muted text-lg">
+        <p class="mt-3 text-lg text-muted">
             View and manage all your upcoming and previous bookings.
         </p>
     </section>
 
-    <section class="flex justify-center mt-10">
-        <div class="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-card">
-            <h2 class="text-2xl font-bold text-text">
-                No Bookings Yet
-            </h2>
+    <% if(bookings.length === 0){ %>
+        <section class="mt-10 flex justify-center">
+            <div class="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-card">
+                <h2 class="text-2xl font-bold text-text">
+                    No Bookings Yet
+                </h2>
+                <p class="mt-4 mb-8 leading-7 text-muted">
+                    You haven't booked any stays yet.
+                </p>
+                <a
+                    href="/homes"
+                    class="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 font-semibold text-white transition hover:bg-secondary">
+                    Explore Homes
+                </a>
+            </div>
+        </section>
 
-            <p class="mt-4 mb-8 leading-7 text-muted">
-                You haven't booked any stays yet. Explore amazing homes and book your next trip.
-            </p>
+    <% } else { %>
+        <section class="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+            <% bookings.forEach(booking => { %>
+                <article class="overflow-hidden rounded-3xl bg-surface shadow-card">
+                    <img
+                        src="<%= booking.home.photo %>"
+                        alt="<%= booking.home.houseName %>"
+                        class="h-60 w-full object-cover">
+                    <div class="p-6">
+                        <h2 class="text-2xl font-bold text-text">
+                            <%= booking.home.houseName %>
+                        </h2>
+                        <p class="mt-2 text-muted">
+                            📍 <%= booking.home.location %>
+                        </p>
+                        <div class="mt-5 space-y-2 text-sm">
+                            <p>
+                                <strong>Check-in:</strong>
+                                <%= new Date(booking.checkIn).toLocaleDateString() %>
+                            </p>
 
-            <a
-                href="/homes"
-                class="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 font-semibold text-white transition duration-300 hover:bg-secondary hover:shadow-lg">
-                Explore Homes
-            </a>
-        </div>
-    </section>
+                            <p>
+                                <strong>Check-out:</strong>
+                                <%= new Date(booking.checkOut).toLocaleDateString() %>
+                            </p>
+
+                            <p>
+                                <strong>Guests:</strong>
+                                <%= booking.guests %>
+                            </p>
+
+                            <p>
+                                <strong>Total Price:</strong>
+                                ₹<%= booking.totalPrice %>
+                            </p>
+
+                            <p>
+                                <strong>Status:</strong>
+                                <span class="<%= booking.bookingStatus === 'Cancelled'
+                                    ? 'text-red-500'
+                                    : 'text-green-600' %> font-semibold">
+                                    <%= booking.bookingStatus %>
+                                </span>
+                            </p>
+                        </div>
+
+                        <% if(booking.bookingStatus !== 'Cancelled'){ %>
+                            <form
+                                action="/bookings/cancel/<%= booking._id %>"
+                                method="POST"
+                                class="mt-6">
+
+                                <button
+                                    class="w-full rounded-xl border border-red-500 py-3 font-semibold text-red-500 transition hover:bg-red-500 hover:text-white">
+                                    Cancel Booking
+                                </button>
+                            </form>
+                        <% } %>
+                    </div>
+                </article>
+            <% }) %>
+        </section>
+    <% } %>
 </main>
 </body>
 

@@ -26,15 +26,6 @@ exports.getHomes = (req, res, next) => {
   });
 };
 
-exports.getBookings = (req, res, next) => {
-  res.render("store/bookings", {
-    pageTitle: "My Bookings",
-    currentPage: "bookings",
-    isLoggedIn: req.isLoggedIn,
-    user: req.session.user,
-  });
-};
-
 exports.getFavouriteList = async (req, res, next) => {
   const userId = req.session.user._id;
   const user = await User.findById(userId).populate('favourites');

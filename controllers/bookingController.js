@@ -7,7 +7,7 @@ exports.getBookings = async (req, res) => {
       .populate("home")
       .sort({ createdAt: -1 });
 
-    res.render("booking/booking-list", {
+    res.render("store/bookings", {
       pageTitle: "My Bookings",
       currentPage: "bookings",
       registeredHomes: [],
