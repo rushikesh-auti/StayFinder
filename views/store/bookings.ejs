@@ -1,147 +1,224 @@
 <%- include('../partials/head') %>
 
 <body class="bg-background">
+
 <%- include('../partials/nav') %>
-<main class="mx-auto max-w-7xl px-4 py-14">
-    <section class="mb-12 text-center">
-        <h1 class="text-4xl font-bold text-text">
+
+<main class="mx-auto max-w-7xl px-4 py-8 lg:py-12">
+
+    <!-- Heading -->
+    <section class="mb-10 text-center">
+        <h1 class="text-3xl font-bold text-text md:text-4xl">
             My Bookings
         </h1>
-        <p class="mt-3 text-lg text-muted">
+
+        <p class="mt-3 text-sm text-muted md:text-base">
             View and manage all your upcoming and previous bookings.
         </p>
     </section>
 
     <% if(bookings.length === 0){ %>
-        <section class="mt-10 flex justify-center">
-            <div class="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-card">
-                <h2 class="text-2xl font-bold text-text">
-                    No Bookings Yet
-                </h2>
-                <p class="mt-4 mb-8 leading-7 text-muted">
-                    You haven't booked any stays yet.
-                </p>
-                <a
-                    href="/homes"
-                    class="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 font-semibold text-white transition hover:bg-secondary">
-                    Explore Homes
-                </a>
-            </div>
-        </section>
 
-  <% } else { %>
+    <section class="flex justify-center">
 
-<section class="grid gap-8 lg:grid-cols-2">
+        <div class="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-card">
 
-    <% bookings.forEach(booking => { %>
+            <h2 class="text-2xl font-bold text-text">
+                No Bookings Yet
+            </h2>
 
-    <article class="flex flex-col md:flex-row gap-6 rounded-3xl bg-surface p-5 shadow-card">
-
-    <img
-        src="<%= booking.home.photo %>"
-        class="h-40 w-full rounded-2xl object-cover md:w-52">
-
-    <div class="flex flex-1 flex-col justify-between">
-
-        <div>
-
-            <div class="flex items-start justify-between">
-
-                <div>
-
-                    <h2 class="text-2xl font-bold text-text">
-                        <%= booking.home.houseName %>
-                    </h2>
-
-                    <p class="mt-1 text-muted">
-                        📍 <%= booking.home.location %>
-                    </p>
-
-                </div>
-
-                <span
-                    class="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-600">
-
-                    <%= booking.bookingStatus %>
-
-                </span>
-
-            </div>
-
-            <div class="mt-6 grid grid-cols-2 gap-4">
-
-                <div>
-                    <p class="text-xs text-muted">Check-in</p>
-                    <p class="font-semibold">
-                        <%= new Date(booking.checkIn).toLocaleDateString() %>
-                    </p>
-                </div>
-
-                <div>
-                    <p class="text-xs text-muted">Check-out</p>
-                    <p class="font-semibold">
-                        <%= new Date(booking.checkOut).toLocaleDateString() %>
-                    </p>
-                </div>
-
-                <div>
-                    <p class="text-xs text-muted">Guests</p>
-                    <p class="font-semibold">
-                        <%= booking.guests %>
-                    </p>
-                </div>
-
-                <div>
-                    <p class="text-xs text-muted">Total Price</p>
-                    <p class="font-bold text-primary">
-                        ₹<%= booking.totalPrice %>
-                    </p>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="mt-6 flex gap-3">
+            <p class="mt-4 mb-8 leading-7 text-muted">
+                You haven't booked any stays yet. Start exploring amazing places.
+            </p>
 
             <a
-                href="/homes/<%= booking.home._id %>"
-                class="flex-1 rounded-xl border border-primary py-3 text-center font-semibold text-primary transition hover:bg-primary hover:text-white">
-
-                View Property
-
+                href="/homes"
+                class="inline-flex rounded-xl bg-primary px-6 py-3 font-semibold text-white transition hover:bg-secondary">
+                Explore Homes
             </a>
-
-            <% if(booking.bookingStatus !== 'Cancelled'){ %>
-
-            <form
-                action="/bookings/cancel/<%= booking._id %>"
-                method="POST"
-                class="flex-1">
-
-                <button
-                    class="w-full rounded-xl bg-red-500 py-3 font-semibold text-white transition hover:bg-red-600">
-
-                    Cancel
-
-                </button>
-
-            </form>
-
-            <% } %>
 
         </div>
 
-    </div>
+    </section>
 
-</article>
+    <% } else { %>
 
-    <% }) %>
+    <section class="grid gap-6">
 
-</section>
+        <% bookings.forEach(booking => { %>
 
-<% } %>
+        <article class="overflow-hidden rounded-3xl bg-white shadow-card transition hover:shadow-xl">
+
+            <div class="flex flex-col md:flex-row">
+
+                <!-- Image -->
+
+                <img
+                    src="<%= booking.home.photo %>"
+                    alt="<%= booking.home.houseName %>"
+                    class="h-56 w-full object-cover md:h-auto md:w-72">
+
+                <!-- Content -->
+
+                <div class="flex flex-1 flex-col justify-between p-6">
+
+                    <div>
+
+                        <!-- Top -->
+
+                        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+
+                            <div>
+
+                                <h2 class="text-2xl font-bold text-text">
+                                    <%= booking.home.houseName %>
+                                </h2>
+
+                                <p class="mt-2 text-muted">
+                                    📍 <%= booking.home.location %>
+                                </p>
+
+                            </div>
+
+                            <span
+                                class="w-fit rounded-full px-4 py-2 text-sm font-semibold
+
+                                <%= booking.bookingStatus === 'Confirmed'
+                                ? 'bg-green-100 text-green-700'
+                                : booking.bookingStatus === 'Cancelled'
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-yellow-100 text-yellow-700' %>">
+
+                                <%= booking.bookingStatus %>
+
+                            </span>
+
+                        </div>
+
+                        <!-- Details -->
+
+                        <div class="mt-8 grid grid-cols-2 gap-5 md:grid-cols-3">
+
+                            <div>
+
+                                <p class="text-xs uppercase tracking-wide text-muted">
+                                    Check-In
+                                </p>
+
+                                <p class="mt-1 font-semibold text-text">
+                                    <%= new Date(booking.checkIn).toLocaleDateString() %>
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <p class="text-xs uppercase tracking-wide text-muted">
+                                    Check-Out
+                                </p>
+
+                                <p class="mt-1 font-semibold text-text">
+                                    <%= new Date(booking.checkOut).toLocaleDateString() %>
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <p class="text-xs uppercase tracking-wide text-muted">
+                                    Nights
+                                </p>
+
+                                <p class="mt-1 font-semibold text-text">
+                                    <%= booking.nights %>
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <p class="text-xs uppercase tracking-wide text-muted">
+                                    Guests
+                                </p>
+
+                                <p class="mt-1 font-semibold text-text">
+                                    <%= booking.guests %>
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <p class="text-xs uppercase tracking-wide text-muted">
+                                    Total Price
+                                </p>
+
+                                <p class="mt-1 text-lg font-bold text-primary">
+                                    ₹<%= booking.totalPrice %>
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Buttons -->
+
+                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+
+                        <a
+                            href="/homes/<%= booking.home._id %>"
+                            class="flex-1 rounded-xl border border-primary py-3 text-center font-semibold text-primary transition hover:bg-primary hover:text-white">
+
+                            View Property
+
+                        </a>
+
+                        <% if(booking.bookingStatus !== 'Cancelled'){ %>
+
+                        <form
+                            action="/bookings/cancel/<%= booking._id %>"
+                            method="POST"
+                            class="flex-1">
+
+                            <button
+                                class="w-full rounded-xl bg-red-500 py-3 font-semibold text-white transition hover:bg-red-600">
+
+                                Cancel Booking
+
+                            </button>
+
+                        </form>
+
+                        <% } else { %>
+
+                        <button
+                            disabled
+                            class="flex-1 cursor-not-allowed rounded-xl bg-gray-300 py-3 font-semibold text-gray-600">
+
+                            Booking Cancelled
+
+                        </button>
+
+                        <% } %>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        <% }) %>
+
+    </section>
+
+    <% } %>
+
 </main>
+
 </body>
 
 </html>
