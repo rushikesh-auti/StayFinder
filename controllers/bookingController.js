@@ -3,9 +3,18 @@ const Home = require("../models/home");
 
 exports.getBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ user: req.session.user._id })
+    const bookings = await Booking.find({
+      user: req.session.user._id,
+    })
       .populate("home")
       .sort({ createdAt: -1 });
+
+    bookings.forEach((booking) => {
+      booking.nights = Math.ceil(
+        (booking.checkOut - booking.checkIn) /
+        (1000 * 60 * 60 * 24)
+      );
+    });
 
     res.render("store/bookings", {
       pageTitle: "My Bookings",
