@@ -52,6 +52,9 @@ app.use(session({
 }));
 
 app.use((req, res, next) => {
+  if (!req.session.isLoggedIn) {
+    req.session.redirectTo = req.originalUrl;
+  }
   req.isLoggedIn = req.session.isLoggedIn;
   next();
 });
@@ -63,21 +66,26 @@ app.use(authRouter);
 
 app.use("/homes", (req, res, next) => {
   if (req.isLoggedIn) {
-    next();
-  } else {
-    res.redirect("/login");
+    return next();
   }
+  return res.redirect("/login");
 });
 
 app.use("/favourites", (req, res, next) => {
   if (req.isLoggedIn) {
-    next();
-  } else {
-    res.redirect("/login");
+    return next();
   }
+  return res.redirect("/login");
 });
 
 app.use(storeRouter);
+app.use("/bookings", (req, res, next) => {
+  if (req.isLoggedIn) {
+    return next();
+  }
+  return res.redirect("/login");
+});
+
 app.use("/bookings", bookingRouter);
 
 app.use("/host", (req, res, next) => {
