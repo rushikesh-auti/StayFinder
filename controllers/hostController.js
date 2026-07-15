@@ -32,7 +32,10 @@ exports.getEditHome = async (req, res) => {
     const { homeId } = req.params;
     const editing = req.query.editing === "true";
 
-    const home = await Home.findById(homeId).lean();
+    const home = await Home.findOne({
+      _id: homeId,
+      host: req.session.user._id,
+    }).lean();
 
     if (!home) {
       return res.redirect("/host/host-home-list");
@@ -62,7 +65,9 @@ exports.getEditHome = async (req, res) => {
 
 exports.getHostHomes = async (req, res) => {
   try {
-    const registeredHomes = await Home.find().lean();
+    const registeredHomes = await Home.find({
+      host: req.session.user._id,
+    }).lean();
 
     res.render("host/host-home-list", {
       registeredHomes,
@@ -151,7 +156,10 @@ exports.postEditHome = async (req, res) => {
       description,
     } = req.body;
 
-    const home = await Home.findById(id);
+    const home = await Home.findOne({
+      _id: id,
+      host: req.session.user._id,
+    });
 
     if (!home) {
       return res.redirect("/host/host-home-list");
@@ -227,8 +235,11 @@ exports.postDeleteHome = async (req, res) => {
     } catch (cloudinaryError) {
       console.error("Cloudinary delete failed:", cloudinaryError.message);
     }
-
-    await Home.findByIdAndDelete(home._id);
+git 
+    await Home.deleteOne({
+      _id: home._id,
+      host: req.session.user._id,
+    });
 
     console.info("Home deleted successfully.");
 
