@@ -116,6 +116,7 @@ exports.postAddHome = async (req, res) => {
       description,
       photo: result.secure_url,
       photoId: result.public_id,
+      host: req.session.user._id,
     });
 
     await home.save();
