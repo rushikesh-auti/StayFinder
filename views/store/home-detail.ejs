@@ -1,9 +1,7 @@
 <%- include("../partials/head") %>
 
 <body class="bg-background">
-
 <%- include("../partials/nav") %>
-
 <main class="mx-auto max-w-6xl px-4 py-10 lg:px-6">
     <div class="group relative overflow-hidden rounded-3xl shadow-card">
 
@@ -94,6 +92,11 @@
         <aside>
             <div class="sticky top-28 rounded-3xl bg-surface p-8 shadow-card ring-1 ring-border/50">
 
+                <% const initialBookingError = typeof bookingError !== "undefined" ? bookingError : ""; %>
+                <div id="booking-error" class="mb-5 rounded-xl bg-red-100 p-4 text-red-600" <% if (!initialBookingError) { %>style="display:none;"<% } %>>
+                    <%= initialBookingError %>
+                </div>
+
                 <form
     action="/bookings/create/<%= home._id %>"
     method="POST"
@@ -139,8 +142,9 @@
     </div>
 
     <button
+        id="reserve-button"
         type="submit"
-        class="w-full rounded-xl bg-primary py-4 text-lg font-semibold text-white transition duration-300 hover:bg-secondary">
+        class="w-full rounded-xl bg-primary py-4 text-lg font-semibold text-white transition duration-300 hover:bg-secondary disabled:cursor-not-allowed disabled:bg-gray-400">
         Reserve Now
     </button>
 
@@ -170,6 +174,61 @@
     </div>
 
 </main>
+<script>
+  const checkInInput = document.querySelector('input[name="checkIn"]');
+  const checkOutInput = document.querySelector('input[name="checkOut"]');
+  const submitButton = document.getElementById('reserve-button');
+  const errorBox = document.getElementById('booking-error');
+  const homeId = '<%= home._id %>';
+
+  const setAvailabilityState = (isAvailable, message = '') => {
+    if (!submitButton) return;
+
+    submitButton.disabled = !isAvailable;
+    submitButton.textContent = isAvailable ? 'Reserve Now' : 'Unavailable';
+
+    if (errorBox) {
+      errorBox.textContent = message;
+      errorBox.style.display = message ? 'block' : 'none';
+    }
+  };
+
+  const checkAvailability = async () => {
+    const checkIn = checkInInput?.value;
+    const checkOut = checkOutInput?.value;
+
+    if (!checkIn || !checkOut) {
+      setAvailabilityState(true, '');
+      return;
+    }
+
+    if (checkIn >= checkOut) {
+      setAvailabilityState(false, 'Please select valid dates.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/bookings/check-availability/${homeId}?checkIn=${encodeURIComponent(checkIn)}&checkOut=${encodeURIComponent(checkOut)}`);
+      const data = await response.json();
+      setAvailabilityState(data.available, data.message || '');
+    } catch (err) {
+      setAvailabilityState(false, 'Unable to check availability right now.');
+    }
+  };
+
+  [checkInInput, checkOutInput].forEach((input) => {
+    input?.addEventListener('change', checkAvailability);
+    input?.addEventListener('input', checkAvailability);
+  });
+
+  const initialError = '<%= initialBookingError %>';
+  if (initialError) {
+    setAvailabilityState(false, initialError);
+  } else {
+    checkAvailability();
+  }
+</script>
+
 </body>
 
 </html>
