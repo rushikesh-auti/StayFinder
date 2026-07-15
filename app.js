@@ -60,6 +60,23 @@ app.use(multer(multerOptions).single("photo"));
 app.use(express.static(path.join(rootDir, "public")));
 
 app.use(authRouter);
+
+app.use("/homes", (req, res, next) => {
+  if (req.isLoggedIn) {
+    next();
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.use("/favourites", (req, res, next) => {
+  if (req.isLoggedIn) {
+    next();
+  } else {
+    res.redirect("/login");
+  }
+});
+
 app.use(storeRouter);
 app.use("/bookings", bookingRouter);
 

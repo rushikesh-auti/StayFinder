@@ -27,7 +27,7 @@
                 </p>
 
                 <div class="mt-10 flex flex-wrap gap-4">
-                    <a href="/homes"
+                    <a href="<%= isLoggedIn ? '/homes' : '/login' %>"
                         class="rounded-xl bg-white px-8 py-4 font-semibold text-primary transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
                         Explore Homes
                     </a>
@@ -213,7 +213,7 @@
 
                 <div class="mt-10 flex flex-wrap justify-center gap-5">
                     <a
-                        href="/homes"
+                        href="<%= isLoggedIn ? '/homes' : '/login' %>"
                         class="rounded-xl bg-white px-8 py-4 font-semibold text-primary transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                         Explore Homes
                     </a>
