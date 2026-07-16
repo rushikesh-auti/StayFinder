@@ -12,6 +12,6 @@ hostRouter.get("/host-home-list", hostController.getHostHomes);
 hostRouter.get("/edit-home/:homeId", hostController.getEditHome);
 hostRouter.post("/edit-home", hostController.postEditHome);
 hostRouter.post("/delete-home/:homeId", hostController.postDeleteHome);
-router.get("/host-bookings", bookingController.getHostBookings);
+hostRouter.get("/host-bookings", bookingController.getHostBookings);
 
 module.exports = hostRouter;
