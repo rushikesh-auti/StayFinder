@@ -151,3 +151,64 @@ exports.cancelBooking = async (req, res) => {
     res.redirect("/bookings");
   }
 };
+
+exports.getHostBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find()
+      .populate({
+        path: "home",
+        populate: {
+          path: "host",
+        },
+      })
+      .populate("user")
+      .sort({ createdAt: -1 });
+
+    const hostBookings = bookings.filter(
+      (booking) =>
+        booking.home &&
+        booking.home.host &&
+        booking.home.host._id.toString() ===
+        req.session.user._id.toString()
+    );
+
+    hostBookings.forEach((booking) => {
+      booking.nights = Math.ceil(
+        (booking.checkOut - booking.checkIn) /
+        (1000 * 60 * 60 * 24)
+      );
+    });
+
+    const totalBookings = hostBookings.length;
+
+    const confirmedBookings = hostBookings.filter(
+      (booking) => booking.bookingStatus === "Confirmed"
+    ).length;
+
+    const cancelledBookings = hostBookings.filter(
+      (booking) => booking.bookingStatus === "Cancelled"
+    ).length;
+
+    const totalRevenue = hostBookings
+      .filter((booking) => booking.bookingStatus === "Confirmed")
+      .reduce(
+        (sum, booking) => sum + booking.totalPrice,
+        0
+      );
+
+    res.render("host/host-bookings", {
+      pageTitle: "Manage Bookings",
+      currentPage: "host-bookings",
+      bookings: hostBookings,
+      totalBookings,
+      confirmedBookings,
+      cancelledBookings,
+      totalRevenue,
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
+  } catch (err) {
+    console.log(err);
+    res.redirect("/host/host-home-list");
+  }
+};
