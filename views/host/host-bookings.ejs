@@ -1,0 +1,174 @@
+<%- include("../partials/head") %>
+<body class="bg-background">
+<%- include("../partials/nav") %>
+<main class="mx-auto max-w-7xl px-4 py-10">
+    <section class="text-center mt-2 mb-10">
+        <h1 class="text-3xl font-bold text-text">
+            Booking Management
+        </h1>
+        <p class="mt-2 text-muted">
+            Manage bookings for your listed properties.
+        </p>
+    </section>
+
+    <section class="mb-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-2xl bg-white p-6 shadow-card">
+            <p class="text-sm text-muted">
+                Total Bookings
+            </p>
+            <h2 class="mt-2 text-3xl font-bold">
+                <%= totalBookings %>
+            </h2>
+        </div>
+
+        <div class="rounded-2xl bg-white p-6 shadow-card">
+            <p class="text-sm text-muted">
+                Confirmed
+            </p>
+            <h2 class="mt-2 text-3xl font-bold text-green-600">
+                <%= confirmedBookings %>
+            </h2>
+        </div>
+
+        <div class="rounded-2xl bg-white p-6 shadow-card">
+            <p class="text-sm text-muted">
+                Cancelled
+            </p>
+            <h2 class="mt-2 text-3xl font-bold text-red-500">
+                <%= cancelledBookings %>
+            </h2>
+        </div>
+
+        <div class="rounded-2xl bg-white p-6 shadow-card">
+            <p class="text-sm text-muted">
+                Revenue
+            </p>
+            <h2 class="mt-2 text-3xl font-bold text-primary">
+                ₹<%= totalRevenue %>
+            </h2>
+        </div>
+
+    </section>
+
+    <% if(bookings.length===0){ %>
+
+    <div class="rounded-3xl bg-white p-12 text-center shadow-card">
+        <h2 class="text-2xl font-bold">
+            No Bookings Yet
+        </h2>
+        <p class="mt-3 text-muted">
+            Your listed properties haven't received any bookings yet.
+        </p>
+
+    </div>
+
+    <% } else { %>
+
+    <section class="space-y-8">
+
+        <% bookings.forEach(booking=>{ %>
+
+        <article class="overflow-hidden rounded-3xl bg-white shadow-card">
+            <div class="flex flex-col lg:flex-row">
+                <img
+                    src="<%= booking.home.photo %>"
+                    class="h-56 w-full object-cover lg:h-auto lg:w-72">
+
+                <div class="flex-1 p-7">
+                    <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-text">
+                                <%= booking.home.houseName %>
+                            </h2>
+                            <p class="mt-1 text-muted">
+                                📍 <%= booking.home.location %>
+                            </p>
+                        </div>
+
+                        <span
+                            class="rounded-full px-4 py-2 text-sm font-semibold
+                            <%= booking.bookingStatus==='Confirmed'
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-red-100 text-red-600' %>">
+                            <%= booking.bookingStatus %>
+                        </span>
+                    </div>
+
+                    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-muted">
+                                Guest
+                            </p>
+                            <p class="mt-1 font-semibold">
+                                <%= booking.user.firstName %>
+                                <%= booking.user.lastName %>
+                            </p>
+                            <p class="text-sm text-muted">
+                                <%= booking.user.email %>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-muted">
+                                Check-In
+                            </p>
+                            <p class="mt-1 font-semibold">
+                                <%= new Date(booking.checkIn).toLocaleDateString() %>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-muted">
+                                Check-Out
+                            </p>
+                            <p class="mt-1 font-semibold">
+                                <%= new Date(booking.checkOut).toLocaleDateString() %>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-muted">
+                                Nights
+                            </p>
+                            <p class="mt-1 font-semibold">
+                                <%= booking.nights %>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-muted">
+                                Guests
+                            </p>
+                            <p class="mt-1 font-semibold">
+                                <%= booking.guests %>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-muted">
+                                Revenue
+                            </p>
+                            <p class="mt-1 text-xl font-bold text-primary">
+                                ₹<%= booking.totalPrice %>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-muted">
+                                Booked On
+                            </p>
+                            <p class="mt-1 font-semibold">
+                                <%= new Date(booking.createdAt).toLocaleDateString() %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+        <% }) %>
+    </section>
+    <% } %>
+</main>
+</body>
+
+</html>
