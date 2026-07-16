@@ -1,185 +1,207 @@
-<header class="bg-surface shadow-navbar border-b border-border text-text shadow-md">
+<header class="border-b border-border bg-surface shadow-navbar shadow-md">
   <nav
-    class="container mx-auto px-4 py-3 flex items-center justify-between gap-4"
+    class="container mx-auto flex items-center justify-between gap-4 px-4 py-3"
   >
     <a
       href="/"
-      class="<%= currentPage === 'index' ? 'bg-primary text-white shadow-md' : 'text-text hover:bg-primary hover:text-white' %> rounded-xl px-5 py-2 font-bold text-2xl tracking-tight transition-all duration-300"
-    >
+      class="<%= currentPage === 'index'
+        ? 'bg-primary text-white shadow-md'
+        : 'text-text hover:bg-primary hover:text-white' %>
+      rounded-xl px-5 py-2 text-2xl font-bold tracking-tight transition-all duration-300">
       StayFinder
     </a>
 
-    <!-- Center: Nav Links (desktop only) -->
-    <div class="hidden md:flex items-center gap-2 flex-1">
+    <div class="hidden flex-1 items-center justify-center gap-2 md:flex">
       <% if (isLoggedIn) { %>
-        <% if (user && user.userType === 'guest') { %>
+
+        <% if (user.userType === "guest") { %>
           <a
             href="/homes"
-            class="<%= currentPage === 'Home' ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white' %> rounded-xl px-4 py-2 font-medium transition-all duration-300 hover:-translate-y-0.5"
-          >
-            Homes-List
+            class="<%= currentPage === 'Home'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+            rounded-xl px-4 py-2 font-medium transition-all duration-300">
+            Explore
           </a>
 
           <a
             href="/favourites"
-            class="<%= currentPage === 'favourites' ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white' %> rounded-xl px-4 py-2 font-medium transition-all duration-300 hover:-translate-y-0.5"
-          >
+            class="<%= currentPage === 'favourites'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+            rounded-xl px-4 py-2 font-medium transition-all duration-300">
             Favourites
           </a>
 
           <a
             href="/bookings"
-            class="<%= currentPage === 'bookings' ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white' %> rounded-xl px-4 py-2 font-medium transition-all duration-300 hover:-translate-y-0.5"
-          >
-            Bookings
+            class="<%= currentPage === 'bookings'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+            rounded-xl px-4 py-2 font-medium transition-all duration-300">
+            My Bookings
           </a>
+
         <% } else { %>
           <a
             href="/host/host-home-list"
-            class="<%= currentPage === 'host-homes' ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white' %> rounded-xl px-4 py-2 font-medium transition-all duration-300 hover:-translate-y-0.5"
-          >
-            Host Homes
+            class="<%= currentPage === 'host-homes'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+            rounded-xl px-4 py-2 font-medium transition-all duration-300">
+            My Properties
           </a>
 
           <a
             href="/host/add-home"
-            class="<%= currentPage === 'addHome' ? 'bg-primary text-white' : 'hover:bg-primary hover:text-white' %> rounded-xl px-4 py-2 font-medium transition-all duration-300 hover:-translate-y-0.5"
-          >
-            Add Home
+            class="<%= currentPage === 'addHome'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+            rounded-xl px-4 py-2 font-medium transition-all duration-300">
+            Add Property
           </a>
+
+          <a
+            href="/host/host-bookings"
+            class="<%= currentPage === 'host-bookings'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+            rounded-xl px-4 py-2 font-medium transition-all duration-300">
+            Manage Booking
+          </a>
+
         <% } %>
+
       <% } %>
     </div>
 
-    <!-- Right: Auth always visible + hamburger for nav links on mobile -->
-    <div class="flex items-center gap-2 ml-auto">
+    <div class="ml-auto flex items-center gap-3">
       <% if (!isLoggedIn) { %>
-       <a
-  href="/signup"
-  class="<%= currentPage === 'signup'
-    ? 'bg-primary text-white'
-    : 'border border-primary text-primary hover:bg-primary hover:text-white'
-  %> py-2 px-4 rounded-lg transition-all duration-300 whitespace-nowrap text-sm font-medium"
->
-  Sign Up
-</a>
+        <a
+          href="/signup"
+          class="<%= currentPage === 'signup'
+            ? 'bg-primary text-white'
+            : 'border border-primary text-primary hover:bg-primary hover:text-white' %>
+          rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300">
+          Sign Up
+        </a>
 
         <a
-  href="/login"
-  class="<%= currentPage === 'login'
-    ? 'bg-primary text-white cursor-default'
-    : 'bg-white text-primary border border-primary hover:bg-primary hover:text-white'
-  %> rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300"
->
-  Login
-</a>
-      <% } else { %>
+          href="/login"
+          class="<%= currentPage === 'login'
+            ? 'bg-primary text-white'
+            : 'border border-primary bg-white text-primary hover:bg-primary hover:text-white' %>
+          rounded-lg px-4 py-2 text-sm font-medium transition-all duration-300">
+          Login
+        </a>
+
+        <% } else { %>
         <form action="/logout" method="POST">
           <button
-  type="submit"
-  class="flex items-center gap-2 whitespace-nowrap rounded-xl border border-primary px-4 py-2 text-sm font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white hover:shadow-lg"
->
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              class="w-4 h-4"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5a1.5 1.5 0 001.5 1.5h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm5.03 4.72a.75.75 0 010 1.06l-1.72 1.72h10.94a.75.75 0 010 1.5H10.81l1.72 1.72a.75.75 0 11-1.06 1.06l-3-3a.75.75 0 010-1.06l3-3a.75.75 0 011.06 0z"
-                clip-rule="evenodd"
-              />
-            </svg>
-
+            class="flex items-center gap-2 rounded-xl border border-primary px-4 py-2 text-sm font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white">
             Logout
           </button>
         </form>
-      <% } %>
 
-      <!-- Hamburger (mobile only) -->
-      <% if (isLoggedIn) { %>
         <button
           onclick="toggleNav()"
-          class="md:hidden p-2 rounded-lg hover:bg-primary hover:text-white transition duration-300"
-          aria-label="Toggle menu"
-        >
+          class="rounded-lg p-2 transition hover:bg-primary hover:text-white md:hidden">
           <svg
             id="icon-open"
-            class="w-6 h-6"
+            class="h-6 w-6"
             fill="none"
             stroke="currentColor"
             stroke-width="2.5"
-            viewBox="0 0 24 24"
-          >
+            viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
+              d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
 
           <svg
             id="icon-close"
-            class="w-6 h-6 hidden"
+            class="hidden h-6 w-6"
             fill="none"
             stroke="currentColor"
             stroke-width="2.5"
-            viewBox="0 0 24 24"
-          >
+            viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
+              d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
+
       <% } %>
+
     </div>
   </nav>
-
-  <!-- Mobile Dropdown -->
+    <!-- Mobile Menu -->
   <% if (isLoggedIn) { %>
     <div
       id="mobile-menu"
-      class="hidden md:hidden border-t border-border px-4 pb-4 pt-2 flex flex-col gap-2"
+      class="hidden border-t border-border bg-surface px-4 py-4 md:hidden"
     >
-      <% if (user && user.userType === 'guest') { %>
-        <a
-          href="/homes"
-          class="<%= currentPage === 'Home' ? 'bg-primary text-text' : 'hover:bg-primary hover:text-text' %> py-2 px-4 rounded transition duration-300"
-        >
-          Homes-List
-        </a>
+      <div class="flex flex-col gap-2">
+        <% if (user.userType === "guest") { %>
+          <a
+            href="/homes"
+            class="<%= currentPage === 'Home'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+              rounded-lg px-4 py-3 transition">
+            Explore
+          </a>
 
-        <a
-          href="/favourites"
-          class="<%= currentPage === 'favourites' ? 'bg-primary text-text' : 'hover:bg-primary hover:text-text' %> py-2 px-4 rounded transition duration-300"
-        >
-          Favourites
-        </a>
+          <a
+            href="/favourites"
+            class="<%= currentPage === 'favourites'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+              rounded-lg px-4 py-3 transition">
+            Favourites
+          </a>
 
-        <a
-          href="/bookings"
-          class="<%= currentPage === 'bookings' ? 'bg-primary text-text' : 'hover:bg-primary hover:text-text' %> py-2 px-4 rounded transition duration-300"
-        >
-          Bookings
-        </a>
-      <% } else { %>
-        <a
-          href="/host/host-home-list"
-          class="<%= currentPage === 'host-homes' ? 'bg-primary text-text' : 'hover:bg-primary hover:text-text' %> py-2 px-4 rounded transition duration-300"
-        >
-          Host Homes
-        </a>
+          <a
+            href="/bookings"
+            class="<%= currentPage === 'bookings'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+              rounded-lg px-4 py-3 transition">
+            My Bookings
+          </a>
 
-        <a
-          href="/host/add-home"
-          class="<%= currentPage === 'addHome' ? 'bg-primary text-text' : 'hover:bg-primary hover:text-text' %> py-2 px-4 rounded transition duration-300"
-        >
-          Add Home
-        </a>
-      <% } %>
+        <% } else { %>
+          <a
+            href="/host/host-home-list"
+            class="<%= currentPage === 'host-homes'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+              rounded-lg px-4 py-3 transition">
+            My Properties
+          </a>
+
+          <a
+            href="/host/add-home"
+            class="<%= currentPage === 'addHome'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+              rounded-lg px-4 py-3 transition">
+            Add Property
+          </a>
+
+          <a
+            href="/host/host-bookings"
+            class="<%= currentPage === 'host-bookings'
+              ? 'bg-primary text-white'
+              : 'hover:bg-primary hover:text-white' %>
+              rounded-lg px-4 py-3 transition">
+            Manage Booking
+          </a>
+        <% } %>
+
+      </div>
     </div>
   <% } %>
 </header>
