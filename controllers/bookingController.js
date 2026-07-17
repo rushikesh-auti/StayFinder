@@ -28,7 +28,11 @@ exports.getBookings = async (req, res) => {
       .populate("home")
       .sort({ createdAt: -1 });
 
-    bookings.forEach((booking) => {
+    const validBookings = bookings.filter(
+      (booking) => booking.home
+    );
+
+    validBookings.forEach((booking) => {
       booking.nights = Math.ceil(
         (booking.checkOut - booking.checkIn) /
         (1000 * 60 * 60 * 24)
@@ -40,11 +44,10 @@ exports.getBookings = async (req, res) => {
       currentPage: "bookings",
       registeredHomes: [],
       favouriteHomes: [],
-      bookings,
+      bookings: validBookings,
       user: req.session.user,
       isLoggedIn: req.session.isLoggedIn,
     });
-
   } catch (err) {
     console.log(err);
     res.redirect("/");
@@ -54,32 +57,56 @@ exports.getBookings = async (req, res) => {
 exports.checkAvailability = async (req, res) => {
   try {
     const { checkIn, checkOut } = req.query;
+
     const home = await Home.findById(req.params.homeId);
 
     if (!home) {
-      return res.status(404).json({ available: false, message: "Property not found." });
+      return res.status(404).json({
+        available: false,
+        message: "Property not found.",
+      });
     }
 
     if (!checkIn || !checkOut) {
-      return res.json({ available: false, message: "Please select dates." });
+      return res.json({
+        available: false,
+        message: "Please select dates.",
+      });
     }
 
     const start = parseBookingDate(checkIn);
     const end = parseBookingDate(checkOut);
 
-    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start >= end) {
-      return res.json({ available: false, message: "Please select valid dates." });
+    if (
+      Number.isNaN(start.getTime()) ||
+      Number.isNaN(end.getTime()) ||
+      start >= end
+    ) {
+      return res.json({
+        available: false,
+        message: "Please select valid dates.",
+      });
     }
 
-    const hasConflict = await findBookingConflict(home._id, start, end);
+    const hasConflict = await findBookingConflict(
+      home._id,
+      start,
+      end
+    );
 
     return res.json({
       available: !hasConflict,
-      message: hasConflict ? "Property is unavailable for selected dates." : "",
+      message: hasConflict
+        ? "Property is unavailable for selected dates."
+        : "",
     });
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ available: false, message: "Unable to check availability right now." });
+
+    return res.status(500).json({
+      available: false,
+      message: "Unable to check availability right now.",
+    });
   }
 };
 
@@ -127,7 +154,6 @@ exports.postBooking = async (req, res) => {
     await booking.save();
 
     res.redirect("/bookings");
-
   } catch (err) {
     console.log(err);
     res.redirect("/homes");
@@ -136,7 +162,6 @@ exports.postBooking = async (req, res) => {
 
 exports.cancelBooking = async (req, res) => {
   try {
-
     await Booking.findByIdAndUpdate(
       req.params.bookingId,
       {
@@ -145,7 +170,6 @@ exports.cancelBooking = async (req, res) => {
     );
 
     res.redirect("/bookings");
-
   } catch (err) {
     console.log(err);
     res.redirect("/bookings");
@@ -164,13 +188,14 @@ exports.getHostBookings = async (req, res) => {
       .populate("user")
       .sort({ createdAt: -1 });
 
-    const hostBookings = bookings.filter(
-      (booking) =>
+    const hostBookings = bookings.filter((booking) => {
+      return (
         booking.home &&
         booking.home.host &&
         booking.home.host._id.toString() ===
         req.session.user._id.toString()
-    );
+      );
+    });
 
     hostBookings.forEach((booking) => {
       booking.nights = Math.ceil(
@@ -191,10 +216,7 @@ exports.getHostBookings = async (req, res) => {
 
     const totalRevenue = hostBookings
       .filter((booking) => booking.bookingStatus === "Confirmed")
-      .reduce(
-        (sum, booking) => sum + booking.totalPrice,
-        0
-      );
+      .reduce((sum, booking) => sum + booking.totalPrice, 0);
 
     res.render("host/host-bookings", {
       pageTitle: "Manage Bookings",

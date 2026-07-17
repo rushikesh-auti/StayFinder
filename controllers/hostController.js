@@ -1,4 +1,5 @@
 const Home = require("../models/home");
+const Booking = require("../models/booking");
 const cloudinary = require("../config/cloudinary");
 
 const streamUpload = (buffer, folder = "StayFinder") => {
@@ -64,6 +65,7 @@ exports.getEditHome = async (req, res) => {
 };
 
 exports.getHostHomes = async (req, res) => {
+
   try {
     const registeredHomes = await Home.find({
       host: req.session.user._id,
@@ -90,6 +92,7 @@ exports.getHostHomes = async (req, res) => {
 };
 
 exports.postAddHome = async (req, res) => {
+
   try {
     const {
       houseName,
@@ -146,6 +149,7 @@ exports.postAddHome = async (req, res) => {
 };
 
 exports.postEditHome = async (req, res) => {
+
   try {
     const {
       id,
@@ -172,11 +176,7 @@ exports.postEditHome = async (req, res) => {
     home.description = description;
 
     if (req.file) {
-
-      // Upload new image
       const result = await streamUpload(req.file.buffer);
-
-      // Delete old image
       try {
         if (home.photoId) {
           await cloudinary.uploader.destroy(home.photoId);
@@ -221,28 +221,36 @@ exports.postEditHome = async (req, res) => {
 
 exports.postDeleteHome = async (req, res) => {
   try {
-
-    const home = await Home.findById(req.params.homeId);
+    const home = await Home.findOne({
+      _id: req.params.homeId,
+      host: req.session.user._id,
+    });
 
     if (!home) {
       return res.redirect("/host/host-home-list");
     }
 
-    try {
-      if (home.photoId) {
+    if (home.photoId) {
+      try {
         await cloudinary.uploader.destroy(home.photoId);
+      } catch (cloudinaryError) {
+        console.error(
+          "Cloudinary delete failed:",
+          cloudinaryError.message
+        );
       }
-    } catch (cloudinaryError) {
-      console.error("Cloudinary delete failed:", cloudinaryError.message);
     }
-git 
+
+    const result = await Booking.deleteMany({
+      home: home._id,
+    });
+
     await Home.deleteOne({
       _id: home._id,
       host: req.session.user._id,
     });
 
-    console.info("Home deleted successfully.");
-
+    console.info("Home and related bookings deleted successfully.");
     res.redirect("/host/host-home-list");
 
   } catch (err) {
