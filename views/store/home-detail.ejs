@@ -241,7 +241,6 @@
       </aside>
     </div>
   </main>
-</body>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
   const checkInInput = document.querySelector('input[name="checkIn"]');
@@ -296,6 +295,91 @@
   } else {
     checkAvailability();
   }
+
+const bookingForm = document.getElementById("bookingForm");
+
+bookingForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (submitButton.disabled) {
+    return;
+  }
+
+  const checkIn = document.getElementById("checkIn").value;
+  const checkOut = document.getElementById("checkOut").value;
+  const guests = document.getElementById("guests").value;
+
+  try {
+    const response = await fetch("/payment/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        homeId,
+        checkIn,
+        checkOut,
+        guests,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      alert(data.message);
+      return;
+    }
+
+    const options = {
+      key: data.razorpayKey,
+      amount: data.order.amount,
+      currency: data.order.currency,
+      name: "StayFinder",
+      description: "<%= home.houseName %>",
+      order_id: data.order.id,
+
+      handler: async function (response) {
+
+        const verify = await fetch("/payment/verify-payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            homeId,
+            checkIn,
+            checkOut,
+            guests,
+            totalPrice: data.totalPrice,
+          }),
+        });
+
+        const result = await verify.json();
+
+        if (result.success) {
+          window.location.href = "/bookings";
+        } else {
+          alert(result.message);
+        }
+      },
+
+      theme: {
+        color: "#2563eb",
+      },
+    };
+
+    const rzp = new Razorpay(options);
+
+    rzp.open();
+
+  } catch (err) {
+    console.log(err);
+    alert("Payment initialization failed.");
+  }
+});
 </script>
 <%- include("../partials/footer") %>
 </body>
