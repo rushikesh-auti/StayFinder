@@ -4,9 +4,20 @@ const crypto = require("crypto");
 const Home = require("../models/home");
 const Booking = require("../models/booking");
 
+const getBookingPayload = (body) => {
+  const payload = body?.bookingData || body || {};
+
+  return {
+    homeId: payload.homeId,
+    checkIn: payload.checkIn,
+    checkOut: payload.checkOut,
+    guests: payload.guests,
+  };
+};
+
 exports.createOrder = async (req, res) => {
   try {
-    const { homeId, checkIn, checkOut, guests } = req.body;
+    const { homeId, checkIn, checkOut, guests } = getBookingPayload(req.body);
 
     if (!homeId || !checkIn || !checkOut || !guests) {
       return res.status(400).json({
@@ -41,7 +52,7 @@ exports.createOrder = async (req, res) => {
     const totalPrice = nights * home.price;
 
     const options = {
-      amount: totalPrice * 100,
+      amount: Math.round(totalPrice * 100),
       currency: "INR",
       receipt: `booking_${Date.now()}`,
       notes: {
@@ -60,8 +71,8 @@ exports.createOrder = async (req, res) => {
       order,
       razorpayKey: process.env.RAZORPAY_KEY_ID,
       totalPrice,
+      homeName: home.houseName,
     });
-
   } catch (err) {
     console.error(err);
 
@@ -74,15 +85,20 @@ exports.createOrder = async (req, res) => {
 
 exports.verifyPayment = async (req, res) => {
   try {
+    const bookingData = getBookingPayload(req.body);
     const {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      homeId,
-      checkIn,
-      checkOut,
-      guests,
     } = req.body;
+    const { homeId, checkIn, checkOut, guests } = bookingData;
+
+    if (!req.session?.user?._id) {
+      return res.status(401).json({
+        success: false,
+        message: "Please log in to complete your booking.",
+      });
+    }
 
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -119,7 +135,7 @@ exports.verifyPayment = async (req, res) => {
       home: homeId,
       checkIn: start,
       checkOut: end,
-      guests,
+      guests: Number(guests),
       totalPrice,
       bookingStatus: "Confirmed",
       paymentStatus: "Paid",
@@ -134,7 +150,6 @@ exports.verifyPayment = async (req, res) => {
       success: true,
       message: "Payment verified successfully.",
     });
-
   } catch (err) {
     console.error(err);
 
