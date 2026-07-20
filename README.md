@@ -1,6 +1,6 @@
 # StayFinder
 
-A modern full-stack property rental platform built using **Node.js**, **Express.js**, **MongoDB**, **EJS**, and **Tailwind CSS**. The application enables users to discover, book, and manage rental properties through a clean, responsive interface with secure authentication, Cloudinary image uploads, and persistent database storage.
+A modern full-stack property rental platform built using **Node.js**, **Express.js**, **MongoDB**, **EJS**, and **Tailwind CSS**. The application enables users to discover, book, and manage rental properties through a clean, responsive interface with secure authentication, Razorpay payment integration, Cloudinary image uploads, and persistent database storage.
 
 ---
 
@@ -12,7 +12,7 @@ https://stayfinder-m131.onrender.com
 
 ## Overview
 
-StayFinder is a full-stack property rental application inspired by Airbnb. It allows users to browse properties, view detailed listings, save favourite homes, book stays, and enables hosts to manage their property listings. The application follows the MVC architecture, ensuring scalability, maintainability, and a seamless experience across desktop and mobile devices.
+StayFinder is a full-stack property rental platform inspired by Airbnb. Users can browse properties, view detailed listings, save favourite homes, securely book stays with Razorpay payment integration, and manage their bookings. Hosts can add, edit, and manage property listings, view bookings for their properties, and manage reservations with Cloudinary image uploads. Built using the MVC architecture, the application delivers a scalable, secure, and responsive experience across desktop and mobile devices.
 
 ---
 
@@ -23,7 +23,9 @@ StayFinder is a full-stack property rental application inspired by Airbnb. It al
 - Browse available properties
 - View detailed property information
 - Save and remove favourite properties
-- Book rental properties
+- Check booking availability
+- Securely book rental properties
+- Razorpay payment gateway integration
 - Secure user authentication
 - Responsive and mobile-friendly interface
 
@@ -33,15 +35,19 @@ StayFinder is a full-stack property rental application inspired by Airbnb. It al
 - Edit property details
 - Delete listed properties
 - Manage hosted properties
+- View and manage property bookings
+- Track booking status
 
 ### General Features
 
 - Session-based authentication
+- Booking availability validation
+- Razorpay payment verification
 - Cloudinary image upload integration
 - MongoDB database integration
 - Responsive UI with Tailwind CSS
 - MVC architecture
-- Persistent data storage
+- Persistent database storage
 
 ---
 
@@ -70,6 +76,8 @@ StayFinder is a full-stack property rental application inspired by Airbnb. It al
 - VS Code
 - MongoDB Atlas
 - Cloudinary
+- Razorpay
+- Render
 
 ---
 
@@ -78,15 +86,22 @@ StayFinder is a full-stack property rental application inspired by Airbnb. It al
 ```text
 StayFinder/
 │
+├── config/
+│   ├── cloudinary.js
+│   ├── db.js
+│   └── razorpay.js
+│
 ├── controllers/
 │   ├── authController.js
+│   ├── bookingController.js
 │   ├── favouriteController.js
 │   ├── hostController.js
+│   ├── paymentController.js
 │   └── storeController.js
 │
-├── middleware/
 │
 ├── models/
+│   ├── booking.js
 │   ├── favourite.js
 │   ├── home.js
 │   └── user.js
@@ -98,14 +113,17 @@ StayFinder/
 │
 ├── routes/
 │   ├── authRouter.js
+│   ├── bookingRouter.js
 │   ├── favouriteRouter.js
 │   ├── hostRouter.js
+│   ├── paymentRouter.js
 │   └── storeRouter.js
 │
 ├── utils/
 │
 ├── views/
 │   ├── auth/
+│   ├── bookings/
 │   ├── favourites/
 │   ├── host/
 │   ├── homes/
@@ -121,7 +139,25 @@ StayFinder/
 
 ## Preview
 
-<img width="1892" height="902" alt="image" src="https://github.com/user-attachments/assets/e69302e4-f6c2-47a8-b720-3c3e79a72431" />
+## Home Page
+
+<img width="1901" height="907" alt="image" src="https://github.com/user-attachments/assets/da1b060f-323c-476f-8cd3-bfcebb10f0ce" />
+
+## Property Details
+
+<img width="977" height="797" alt="image" src="https://github.com/user-attachments/assets/09ca6920-920a-404c-8b72-b5c6ae7fd05a" />
+
+## Booking & Razorpay Payment
+
+<img width="1917" height="913" alt="Screenshot 2026-07-20 195220" src="https://github.com/user-attachments/assets/f36e0065-b296-4e37-94b2-c79257b8519e" />
+
+## Host Dashboard
+
+<img width="1898" height="911" alt="Screenshot 2026-07-20 195518" src="https://github.com/user-attachments/assets/02c54ae9-e96a-4ffb-abfe-62489f3908b3" />
+
+## My Bookings
+
+<img width="1901" height="911" alt="Screenshot 2026-07-20 195428" src="https://github.com/user-attachments/assets/ba9c3f1f-5796-49ab-be97-24d26c2e2fa5" />
 
 ---
 
@@ -176,6 +212,10 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 
 CLOUDINARY_API_SECRET=your_api_secret
+
+RAZORPAY_KEY_ID=your_razorpay_key_id
+
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 ```
 
 ---
@@ -189,7 +229,7 @@ npm start
 Open your browser
 
 ```
-http://localhost:3000
+http://localhost:3001
 ```
 
 ---
@@ -199,7 +239,8 @@ http://localhost:3000
 - Browse available rental properties
 - View complete property details
 - Add or remove favourite homes
-- Book rental properties
+- Check property availability
+- Securely book properties with Razorpay
 - Register and login securely
 - Hosts can add, edit, and delete properties
 - Upload property images using Cloudinary
@@ -225,15 +266,11 @@ http://localhost:3000
 
 ## Future Enhancements
 
-- Online Payment Integration
 - Property Search & Advanced Filters
 - User Profile Dashboard
-- Host Dashboard Analytics
 - Reviews & Ratings
 - Google Maps Integration
 - Email Notifications
-- Booking History
-- Property Availability Calendar
 - Dark Mode
 - Progressive Web App (PWA)
 - Docker Support
