@@ -151,13 +151,13 @@ StayFinder/
 
 <img width="1917" height="913" alt="Screenshot 2026-07-20 195220" src="https://github.com/user-attachments/assets/f36e0065-b296-4e37-94b2-c79257b8519e" />
 
-## Host Dashboard
-
-<img width="1898" height="911" alt="Screenshot 2026-07-20 195518" src="https://github.com/user-attachments/assets/02c54ae9-e96a-4ffb-abfe-62489f3908b3" />
-
 ## My Bookings
 
 <img width="1901" height="911" alt="Screenshot 2026-07-20 195428" src="https://github.com/user-attachments/assets/ba9c3f1f-5796-49ab-be97-24d26c2e2fa5" />
+
+## Host Dashboard
+
+<img width="1898" height="911" alt="Screenshot 2026-07-20 195518" src="https://github.com/user-attachments/assets/02c54ae9-e96a-4ffb-abfe-62489f3908b3" />
 
 ---
 
