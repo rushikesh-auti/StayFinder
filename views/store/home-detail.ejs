@@ -16,7 +16,9 @@
       ></div>
 
       <div class="absolute right-5 top-5">
-        <%- include("../partials/favourite") %>
+        <% if (!user || (user && home.host.toString() !== user._id.toString())) { %>
+          <%- include("../partials/favourite") %>
+        <% } %>
       </div>
 
       <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
@@ -138,6 +140,23 @@
             <%= initialBookingError %>
           </div>
 
+          <% if (!user) { %>
+
+          <a
+            href="/login"
+            class="block w-full rounded-xl bg-primary py-4 text-center text-lg font-semibold text-white transition duration-300 hover:bg-secondary"
+          >
+            Login to Book
+          </a>
+
+          <% } else if (home.host.toString() === user._id.toString()) { %>
+
+          <div class="rounded-xl bg-yellow-100 p-4 text-center font-semibold text-yellow-800">
+            You cannot book your own property.
+          </div>
+
+          <% } else { %>
+
           <form
             id="bookingForm"
             class="mt-6 space-y-5"
@@ -195,6 +214,8 @@
               Reserve Now
             </button>
           </form>
+
+          <% } %>
 
           <p class="mt-4 text-center text-xs text-muted">
             Your booking will be confirmed instantly.
@@ -279,88 +300,88 @@
 
 const bookingForm = document.getElementById("bookingForm");
 
-bookingForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
+if (bookingForm) {
+  bookingForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  if (submitButton.disabled) {
-    return;
-  }
-
-  const checkIn = document.getElementById("checkIn").value;
-  const checkOut = document.getElementById("checkOut").value;
-  const guests = document.getElementById("guests").value;
-
-  try {
-    const response = await fetch("/payment/create-order", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        homeId,
-        checkIn,
-        checkOut,
-        guests,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      alert(data.message);
+    if (submitButton.disabled) {
       return;
     }
 
-    const options = {
-      key: data.razorpayKey,
-      amount: data.order.amount,
-      currency: data.order.currency,
-      name: "StayFinder",
-      description: "<%= home.houseName %>",
-      order_id: data.order.id,
+    const checkIn = document.getElementById("checkIn").value;
+    const checkOut = document.getElementById("checkOut").value;
+    const guests = document.getElementById("guests").value;
 
-      handler: async function (response) {
+    try {
+      const response = await fetch("/payment/create-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          homeId,
+          checkIn,
+          checkOut,
+          guests,
+        }),
+      });
 
-        const verify = await fetch("/payment/verify-payment", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            homeId,
-            checkIn,
-            checkOut,
-            guests,
-            totalPrice: data.totalPrice,
-          }),
-        });
+      const data = await response.json();
 
-        const result = await verify.json();
+      if (!data.success) {
+        alert(data.message);
+        return;
+      }
 
-        if (result.success) {
-          window.location.href = "/bookings";
-        } else {
-          alert(result.message);
-        }
-      },
+      const options = {
+        key: data.razorpayKey,
+        amount: data.order.amount,
+        currency: data.order.currency,
+        name: "StayFinder",
+        description: "<%= home.houseName %>",
+        order_id: data.order.id,
 
-      theme: {
-        color: "#2563eb",
-      },
-    };
+        handler: async function (response) {
+          const verify = await fetch("/payment/verify-payment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              homeId,
+              checkIn,
+              checkOut,
+              guests,
+              totalPrice: data.totalPrice,
+            }),
+          });
 
-    const rzp = new Razorpay(options);
+          const result = await verify.json();
 
-    rzp.open();
+          if (result.success) {
+            window.location.href = "/bookings";
+          } else {
+            alert(result.message);
+          }
+        },
 
-  } catch (err) {
-    console.log(err);
-    alert("Payment initialization failed.");
-  }
-});
+        theme: {
+          color: "#2563eb",
+        },
+      };
+
+      const rzp = new Razorpay(options);
+
+      rzp.open();
+    } catch (err) {
+      console.log(err);
+      alert("Payment initialization failed.");
+    }
+  });
+}
 </script>
 <%- include("../partials/footer") %>
 </body>

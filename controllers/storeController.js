@@ -27,8 +27,12 @@ exports.getHomes = (req, res, next) => {
 };
 
 exports.getFavouriteList = async (req, res, next) => {
+  if (!req.session?.user?._id) {
+    return res.redirect("/login");
+  }
+
   const userId = req.session.user._id;
-  const user = await User.findById(userId).populate('favourites');
+  const user = await User.findById(userId).populate("favourites");
   res.render("store/favourite-list", {
     favouriteHomes: user.favourites,
     pageTitle: "My Favourites",
@@ -39,8 +43,22 @@ exports.getFavouriteList = async (req, res, next) => {
 };
 
 exports.postAddToFavourite = async (req, res, next) => {
+  if (!req.session?.user?._id) {
+    return res.redirect("/login");
+  }
+
   const homeId = req.body.id;
   const userId = req.session.user._id;
+  const home = await Home.findById(homeId);
+
+  if (!home) {
+    return res.redirect("/homes");
+  }
+
+  if (home.host.toString() === userId.toString()) {
+    return res.redirect(`/homes/${homeId}`);
+  }
+
   const user = await User.findById(userId);
   if (!user.favourites.includes(homeId)) {
     user.favourites.push(homeId);
@@ -50,11 +68,15 @@ exports.postAddToFavourite = async (req, res, next) => {
 };
 
 exports.postRemoveFromFavourite = async (req, res, next) => {
+  if (!req.session?.user?._id) {
+    return res.redirect("/login");
+  }
+
   const homeId = req.params.homeId;
   const userId = req.session.user._id;
   const user = await User.findById(userId);
   if (user.favourites.includes(homeId)) {
-    user.favourites = user.favourites.filter(fav => fav != homeId);
+    user.favourites = user.favourites.filter((fav) => fav != homeId);
     await user.save();
   }
   res.redirect("/favourites");

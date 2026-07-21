@@ -19,6 +19,13 @@ exports.createOrder = async (req, res) => {
   try {
     const { homeId, checkIn, checkOut, guests } = getBookingPayload(req.body);
 
+    if (!req.session?.user?._id) {
+      return res.status(401).json({
+        success: false,
+        message: "Please log in to complete your booking.",
+      });
+    }
+
     if (!homeId || !checkIn || !checkOut || !guests) {
       return res.status(400).json({
         success: false,
@@ -32,6 +39,13 @@ exports.createOrder = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Property not found.",
+      });
+    }
+
+    if (home.host.toString() === req.session.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You cannot book your own property.",
       });
     }
 
@@ -100,6 +114,22 @@ exports.verifyPayment = async (req, res) => {
       });
     }
 
+    const home = await Home.findById(homeId);
+
+    if (!home) {
+      return res.status(404).json({
+        success: false,
+        message: "Property not found.",
+      });
+    }
+
+    if (home.host.toString() === req.session.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You cannot book your own property.",
+      });
+    }
+
     const generatedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -109,15 +139,6 @@ exports.verifyPayment = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Payment verification failed.",
-      });
-    }
-
-    const home = await Home.findById(homeId);
-
-    if (!home) {
-      return res.status(404).json({
-        success: false,
-        message: "Property not found.",
       });
     }
 
