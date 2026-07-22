@@ -26,6 +26,33 @@ exports.getHomes = (req, res, next) => {
   });
 };
 
+exports.searchHomes = async (req, res) => {
+  try {
+    const query = req.query.q || "";
+
+    const registeredHomes = await Home.find({
+      $or: [
+        { houseName: { $regex: query, $options: "i" } },
+        { location: { $regex: query, $options: "i" } },
+        { description: { $regex: query, $options: "i" } },
+      ],
+    });
+
+    res.render("store/home-list", {
+      registeredHomes,
+      pageTitle: "Search Results",
+      currentPage: "Home",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+      query,
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.redirect("/homes");
+  }
+};
+
 exports.getFavouriteList = async (req, res, next) => {
   if (!req.session?.user?._id) {
     return res.redirect("/login");
