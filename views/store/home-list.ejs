@@ -12,6 +12,21 @@
         </p>
     </div>
 
+    <% if (typeof query !== "undefined" && query.trim() !== "") { %>
+
+<div class="mb-8">
+  <h2 class="text-3xl font-bold text-text">
+    Search Results for
+    <span class="text-primary">"<%= query %>"</span>
+  </h2>
+
+  <p class="mt-2 text-muted">
+    <%= registeredHomes.length %> properties found.
+  </p>
+</div>
+
+<% } %>
+
     <div class="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
         <% registeredHomes.forEach(home => { %>
         <div
