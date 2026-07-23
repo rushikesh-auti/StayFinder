@@ -27,30 +27,31 @@ exports.getHomes = (req, res, next) => {
 };
 
 exports.searchHomes = async (req, res) => {
-  try {
-    const query = req.query.q || "";
+  const query = req.query.q?.trim() || "";
 
-    const registeredHomes = await Home.find({
-      $or: [
-        { houseName: { $regex: query, $options: "i" } },
-        { location: { $regex: query, $options: "i" } },
-        { description: { $regex: query, $options: "i" } },
-      ],
+  let searchQuery = {
+    $or: [
+      { houseName: { $regex: query, $options: "i" } },
+      { location: { $regex: query, $options: "i" } },
+    ],
+  };
+
+  if (!isNaN(query) && query !== "") {
+    searchQuery.$or.push({
+      price: Number(query),
     });
-
-    res.render("store/home-list", {
-      registeredHomes,
-      pageTitle: "Search Results",
-      currentPage: "Home",
-      isLoggedIn: req.isLoggedIn,
-      user: req.session.user,
-      query,
-    });
-
-  } catch (err) {
-    console.log(err);
-    res.redirect("/homes");
   }
+
+  const registeredHomes = await Home.find(searchQuery);
+
+  res.render("store/home-list", {
+    registeredHomes,
+    query,
+    pageTitle: "Search Results",
+    currentPage: "Home",
+    isLoggedIn: req.isLoggedIn,
+    user: req.session.user,
+  });
 };
 
 exports.getFavouriteList = async (req, res, next) => {
