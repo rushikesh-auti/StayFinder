@@ -4,6 +4,8 @@ const crypto = require("crypto");
 const Home = require("../models/home");
 const Booking = require("../models/booking");
 
+const { sendBookingConfirmation } = require("../utils/sendEmail");
+
 const getBookingPayload = (body) => {
   const payload = body?.bookingData || body || {};
 
@@ -167,10 +169,18 @@ exports.verifyPayment = async (req, res) => {
 
     await booking.save();
 
-    return res.status(200).json({
-      success: true,
-      message: "Payment verified successfully.",
-    });
+    await sendBookingConfirmation(
+      req.session.user.email,
+      {
+        name: req.session.user.firstName,
+        property: home.houseName,
+        checkIn,
+        checkOut,
+        guests,
+        total: totalPrice,
+      }
+    );
+
   } catch (err) {
     console.error(err);
 
