@@ -343,40 +343,35 @@ if (bookingForm) {
         order_id: data.order.id,
 
         handler: async function (response) {
-          const verify = await fetch("/payment/verify-payment", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              homeId,
-              checkIn,
-              checkOut,
-              guests,
-              totalPrice: data.totalPrice,
-            }),
-          });
-
-          let result = {};
-
           try {
-            result = await verify.json();
-          } catch (parseErr) {
-            result = {
-              success: verify.ok,
-              redirectUrl: "/bookings",
-            };
-          }
+            const verify = await fetch("/payment/verify-payment", {
+              method: "POST",
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                homeId,
+                checkIn,
+                checkOut,
+                guests,
+                totalPrice: data.totalPrice,
+              }),
+            });
 
-          if (result.success || verify.ok) {
-            window.location.assign(result.redirectUrl || "/bookings");
-          } else {
+            if (!verify.ok) {
+              const errorText = await verify.text();
+              throw new Error(errorText || "Payment verification failed.");
+            }
+
+            window.location.assign("/bookings");
+          } catch (err) {
+            console.error(err);
             alert(
-              result.message ||
+              err.message ||
                 "We could not complete your booking. Please contact support if your payment was charged."
             );
           }
