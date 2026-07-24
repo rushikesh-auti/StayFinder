@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const Home = require("../models/home");
 const Booking = require("../models/booking");
 
-const { sendBookingConfirmation } = require("../utils/sendEmail");
+const { sendBookingConfirmation, sendHostNotification, } = require("../utils/sendEmail");
 
 const getBookingPayload = (body) => {
   const payload = body?.bookingData || body || {};
@@ -35,7 +35,7 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    const home = await Home.findById(homeId);
+    const home = await Home.findById(homeId).populate("host");
 
     if (!home) {
       return res.status(404).json({
@@ -44,7 +44,7 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    if (home.host.toString() === req.session.user._id.toString()) {
+    if (home.host._id.toString() === req.session.user._id.toString()) {
       return res.status(403).json({
         success: false,
         message: "You cannot book your own property.",
@@ -116,7 +116,7 @@ exports.verifyPayment = async (req, res) => {
       });
     }
 
-    const home = await Home.findById(homeId);
+    const home = await Home.findById(homeId).populate("host");
 
     if (!home) {
       return res.status(404).json({
@@ -180,6 +180,23 @@ exports.verifyPayment = async (req, res) => {
         total: totalPrice,
       }
     );
+
+    await sendHostNotification(
+      home.host.email,
+      {
+        name: req.session.user.firstName,
+        property: home.houseName,
+        checkIn,
+        checkOut,
+        guests,
+        total: totalPrice,
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment verified successfully.",
+    });
 
   } catch (err) {
     console.error(err);

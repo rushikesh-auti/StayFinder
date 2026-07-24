@@ -36,15 +36,21 @@ exports.sendHostNotification = async (
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: hostEmail,
-    subject: "New Booking Received",
+    subject: "New Booking Received | StayFinder",
 
     html: `
-      <h2>Congratulations!</h2>
-      <p>You have received a new booking.</p>
+      <h2>New Booking Received</h2>
+      <p>You've received a new booking for your property.</p>
       <p><strong>Guest:</strong> ${booking.name}</p>
       <p><strong>Property:</strong> ${booking.property}</p>
       <p><strong>Check In:</strong> ${booking.checkIn}</p>
       <p><strong>Check Out:</strong> ${booking.checkOut}</p>
+      <p><strong>Guests:</strong> ${booking.guests}</p>
+      <p><strong>Total Amount:</strong> ₹${booking.total}</p>
+
+      <br>
+      <p>Please log in to your StayFinder account to manage this booking.</p>
+      <p>Thanks,<br><strong>StayFinder Team</strong></p>
     `,
   };
 
