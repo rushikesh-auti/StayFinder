@@ -17,6 +17,51 @@ const getBookingPayload = (body) => {
   };
 };
 
+const verifyRazorpayPayment = async (
+  razorpayOrderId,
+  razorpayPaymentId,
+  razorpaySignature
+) => {
+  const expectedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(`${razorpayOrderId}|${razorpayPaymentId}`)
+    .digest("hex");
+
+  if (expectedSignature === razorpaySignature) {
+    return {
+      isValid: true,
+      paymentStatus: "Paid",
+    };
+  }
+
+  if (!razorpayPaymentId) {
+    return {
+      isValid: false,
+      paymentStatus: "Pending",
+    };
+  }
+
+  try {
+    const payment = await Razorpay.payments.fetch(razorpayPaymentId);
+    const isSuccessful =
+      payment?.status === "captured" ||
+      payment?.status === "authorized" ||
+      payment?.captured === true;
+
+    return {
+      isValid: isSuccessful,
+      paymentStatus: isSuccessful ? "Paid" : "Pending",
+    };
+  } catch (err) {
+    console.error("Unable to fetch Razorpay payment details:", err);
+
+    return {
+      isValid: false,
+      paymentStatus: "Pending",
+    };
+  }
+};
+
 exports.createOrder = async (req, res) => {
   try {
     const { homeId, checkIn, checkOut, guests } = getBookingPayload(req.body);
@@ -132,12 +177,13 @@ exports.verifyPayment = async (req, res) => {
       });
     }
 
-    const generatedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-      .digest("hex");
+    const paymentVerification = await verifyRazorpayPayment(
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    );
 
-    if (generatedSignature !== razorpay_signature) {
+    if (!paymentVerification.isValid) {
       return res.status(400).json({
         success: false,
         message: "Payment verification failed.",
@@ -161,7 +207,7 @@ exports.verifyPayment = async (req, res) => {
       guests: Number(guests),
       totalPrice,
       bookingStatus: "Confirmed",
-      paymentStatus: "Paid",
+      paymentStatus: paymentVerification.paymentStatus,
       orderId: razorpay_order_id,
       paymentId: razorpay_payment_id,
       paymentSignature: razorpay_signature,
@@ -169,41 +215,56 @@ exports.verifyPayment = async (req, res) => {
 
     await booking.save();
 
-    await sendBookingConfirmation(
-      req.session.user.email,
-      {
-        name: req.session.user.firstName,
-        property: home.houseName,
-        checkIn,
-        checkOut,
-        guests,
-        total: totalPrice,
-      }
+    const notificationResults = await Promise.allSettled([
+      sendBookingConfirmation(
+        req.session.user.email,
+        {
+          name: req.session.user.firstName,
+          property: home.houseName,
+          checkIn,
+          checkOut,
+          guests,
+          total: totalPrice,
+        }
+      ),
+      sendHostNotification(
+        home.host.email,
+        {
+          name: req.session.user.firstName,
+          property: home.houseName,
+          checkIn,
+          checkOut,
+          guests,
+          total: totalPrice,
+        }
+      ),
+    ]);
+
+    const failedNotifications = notificationResults.filter(
+      (result) => result.status === "rejected"
     );
 
-    await sendHostNotification(
-      home.host.email,
-      {
-        name: req.session.user.firstName,
-        property: home.houseName,
-        checkIn,
-        checkOut,
-        guests,
-        total: totalPrice,
-      }
-    );
+    if (failedNotifications.length > 0) {
+      console.error(
+        "Booking saved but notification emails failed:",
+        failedNotifications
+      );
+    }
 
     return res.status(200).json({
       success: true,
-      message: "Payment verified successfully.",
+      message:
+        failedNotifications.length > 0
+          ? "Payment verified successfully. Your booking is confirmed, but confirmation emails could not be sent."
+          : "Payment verified successfully.",
     });
-
   } catch (err) {
-    console.error(err);
+    console.error("Payment verification failed:", err);
 
     return res.status(500).json({
       success: false,
-      message: "Payment verification failed.",
+      message:
+        "We could not complete your booking. Your payment may still be processing. Please contact support if your booking does not appear.",
     });
   }
 };

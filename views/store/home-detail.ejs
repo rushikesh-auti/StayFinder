@@ -364,7 +364,10 @@ if (bookingForm) {
           if (result.success) {
             window.location.href = "/bookings";
           } else {
-            alert(result.message);
+            alert(
+              result.message ||
+                "We could not complete your booking. Please contact support if your payment was charged."
+            );
           }
         },
 
