@@ -362,7 +362,7 @@ if (bookingForm) {
           const result = await verify.json();
 
           if (result.success) {
-            window.location.href = "/bookings";
+            window.location.assign(result.redirectUrl || "/bookings");
           } else {
             alert(
               result.message ||
