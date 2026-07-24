@@ -1,9 +1,15 @@
 const transporter = require("./emailService");
 
+const hasEmailConfig = () => Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+
 exports.sendBookingConfirmation = async (
   userEmail,
   bookingDetails
 ) => {
+  if (!hasEmailConfig()) {
+    console.warn("Email credentials are not configured. Skipping booking confirmation email.");
+    return;
+  }
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -32,6 +38,10 @@ exports.sendHostNotification = async (
   hostEmail,
   booking
 ) => {
+  if (!hasEmailConfig()) {
+    console.warn("Email credentials are not configured. Skipping host notification email.");
+    return;
+  }
 
   const mailOptions = {
     from: process.env.EMAIL_USER,

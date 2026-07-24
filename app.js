@@ -19,9 +19,11 @@ const rootDir = require("./utils/pathUtil");
 const errorsController = require("./controllers/errors");
 
 const app = express();
+const isProduction = process.env.NODE_ENV === "production" || process.env.RENDER === "true";
 
 app.set("view engine", "ejs");
 app.set("views", "views");
+app.set("trust proxy", 1);
 
 const store = new MongoDBStore({
   uri: process.env.DB_PATH,
@@ -50,6 +52,12 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   store,
+  cookie: {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  },
 }));
 
 app.use((req, res, next) => {
