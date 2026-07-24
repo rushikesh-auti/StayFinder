@@ -27,3 +27,27 @@ exports.sendBookingConfirmation = async (
 
   await transporter.sendMail(mailOptions);
 };
+
+exports.sendHostNotification = async (
+  hostEmail,
+  booking
+) => {
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: hostEmail,
+    subject: "New Booking Received",
+
+    html: `
+      <h2>Congratulations!</h2>
+      <p>You have received a new booking.</p>
+      <p><strong>Guest:</strong> ${booking.name}</p>
+      <p><strong>Property:</strong> ${booking.property}</p>
+      <p><strong>Check In:</strong> ${booking.checkIn}</p>
+      <p><strong>Check Out:</strong> ${booking.checkOut}</p>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+
+};
