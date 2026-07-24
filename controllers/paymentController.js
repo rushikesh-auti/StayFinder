@@ -247,7 +247,7 @@ exports.verifyPayment = async (req, res) => {
       homeId,
     });
 
-    const notificationResults = await Promise.allSettled([
+    void Promise.allSettled([
       sendBookingConfirmation(
         req.session.user.email,
         {
@@ -270,26 +270,23 @@ exports.verifyPayment = async (req, res) => {
           total: totalPrice,
         }
       ),
-    ]);
-
-    const failedNotifications = notificationResults.filter(
-      (result) => result.status === "rejected"
-    );
-
-    if (failedNotifications.length > 0) {
-      console.error(
-        "Booking saved but notification emails failed:",
-        failedNotifications
+    ]).then((notificationResults) => {
+      const failedNotifications = notificationResults.filter(
+        (result) => result.status === "rejected"
       );
-    }
+
+      if (failedNotifications.length > 0) {
+        console.error(
+          "Booking saved but notification emails failed:",
+          failedNotifications
+        );
+      }
+    });
 
     return res.status(200).json({
       success: true,
       redirectUrl: "/bookings",
-      message:
-        failedNotifications.length > 0
-          ? "Payment verified successfully. Your booking is confirmed, but confirmation emails could not be sent."
-          : "Payment verified successfully.",
+      message: "Payment verified successfully.",
     });
   } catch (err) {
     console.error("Payment verification failed:", err);

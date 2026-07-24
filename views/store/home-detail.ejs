@@ -362,12 +362,13 @@ if (bookingForm) {
               }),
             });
 
-            if (!verify.ok) {
-              const errorText = await verify.text();
-              throw new Error(errorText || "Payment verification failed.");
+            const verifyData = await verify.json();
+
+            if (!verify.ok || !verifyData.success) {
+              throw new Error(verifyData.message || "Payment verification failed.");
             }
 
-            window.location.assign("/bookings");
+            window.location.assign(verifyData.redirectUrl || "/bookings");
           } catch (err) {
             console.error(err);
             alert(

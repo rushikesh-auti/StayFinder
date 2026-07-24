@@ -1,6 +1,7 @@
-const transporter = require("./emailService");
+const emailService = require("./emailService");
 
-const hasEmailConfig = () => Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+const hasEmailConfig = emailService.hasEmailConfig;
+const senderAddress = () => process.env.EMAIL_FROM || process.env.EMAIL_USER;
 
 exports.sendBookingConfirmation = async (
   userEmail,
@@ -12,7 +13,7 @@ exports.sendBookingConfirmation = async (
   }
 
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: senderAddress(),
     to: userEmail,
     subject: "Booking Confirmed | StayFinder",
 
@@ -31,7 +32,7 @@ exports.sendBookingConfirmation = async (
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  await emailService.sendMail(mailOptions);
 };
 
 exports.sendHostNotification = async (
@@ -44,7 +45,7 @@ exports.sendHostNotification = async (
   }
 
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: senderAddress(),
     to: hostEmail,
     subject: "New Booking Received | StayFinder",
 
@@ -64,6 +65,6 @@ exports.sendHostNotification = async (
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  await emailService.sendMail(mailOptions);
 
 };
