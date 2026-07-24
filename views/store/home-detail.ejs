@@ -315,6 +315,7 @@ if (bookingForm) {
     try {
       const response = await fetch("/payment/create-order", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -344,6 +345,7 @@ if (bookingForm) {
         handler: async function (response) {
           const verify = await fetch("/payment/verify-payment", {
             method: "POST",
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
             },
@@ -359,9 +361,18 @@ if (bookingForm) {
             }),
           });
 
-          const result = await verify.json();
+          let result = {};
 
-          if (result.success) {
+          try {
+            result = await verify.json();
+          } catch (parseErr) {
+            result = {
+              success: verify.ok,
+              redirectUrl: "/bookings",
+            };
+          }
+
+          if (result.success || verify.ok) {
             window.location.assign(result.redirectUrl || "/bookings");
           } else {
             alert(

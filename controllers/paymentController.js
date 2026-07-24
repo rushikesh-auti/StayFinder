@@ -241,6 +241,12 @@ exports.verifyPayment = async (req, res) => {
 
     await booking.save();
 
+    console.log("Booking created successfully", {
+      bookingId: booking._id,
+      userId: req.session.user._id.toString(),
+      homeId,
+    });
+
     const notificationResults = await Promise.allSettled([
       sendBookingConfirmation(
         req.session.user.email,
