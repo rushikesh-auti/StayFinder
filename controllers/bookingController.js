@@ -1,5 +1,6 @@
 const Booking = require("../models/booking");
 const Home = require("../models/home");
+const mongoose = require("mongoose");
 
 const parseBookingDate = (value) => {
   const [year, month, day] = value.split("-").map(Number);
@@ -232,5 +233,36 @@ exports.getHostBookings = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.redirect("/host/host-home-list");
+  }
+};
+
+exports.getBookedDates = async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.homeId)) {
+      return res.status(400).json([]);
+    }
+
+    const bookings = await Booking.find({
+      home: req.params.homeId,
+      bookingStatus: "Confirmed",
+    });
+
+    const disabledDates = [];
+    bookings.forEach((booking) => {
+
+      let current = new Date(booking.checkIn);
+      while (current < booking.checkOut) {
+        disabledDates.push(
+          current.toISOString().split("T")[0]
+        );
+        current.setDate(current.getDate() + 1);
+      }
+
+    });
+    res.json(disabledDates);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json([]);
+
   }
 };

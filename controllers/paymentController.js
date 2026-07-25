@@ -6,6 +6,17 @@ const Booking = require("../models/booking");
 
 const { sendBookingConfirmation, sendHostNotification, } = require("../utils/sendEmail");
 
+const hasBookingConflict = async (homeId, start, end) => {
+  const bookings = await Booking.find({
+    home: homeId,
+    bookingStatus: "Confirmed",
+  });
+
+  return bookings.some((booking) =>
+    new Date(booking.checkIn) < end && new Date(booking.checkOut) > start
+  );
+};
+
 const getBookingPayload = (body) => {
   const payload = body?.bookingData || body || {};
 
@@ -111,6 +122,13 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid booking dates.",
+      });
+    }
+
+    if (await hasBookingConflict(home._id, start, end)) {
+      return res.status(409).json({
+        success: false,
+        message: "Property is unavailable for the selected dates.",
       });
     }
 

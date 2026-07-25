@@ -298,6 +298,41 @@
     checkAvailability();
   }
 
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const response = await fetch(`/bookings/${homeId}/booked-dates`);
+      const bookedDates = response.ok ? await response.json() : [];
+
+      const commonOptions = {
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        disable: bookedDates,
+      };
+
+      const checkOutPicker = flatpickr(checkOutInput, commonOptions);
+
+      flatpickr(checkInInput, {
+        ...commonOptions,
+        onChange: (selectedDates) => {
+          if (selectedDates[0]) {
+            const nextDay = new Date(selectedDates[0]);
+            nextDay.setDate(nextDay.getDate() + 1);
+            checkOutPicker.set("minDate", nextDay);
+
+            if (checkOutPicker.selectedDates[0] <= selectedDates[0]) {
+              checkOutPicker.clear();
+            }
+          }
+
+          checkAvailability();
+        },
+      });
+    } catch (err) {
+      console.error("Unable to load booked dates:", err);
+      setAvailabilityState(false, "Unable to load the booking calendar.");
+    }
+  });
+
 const bookingForm = document.getElementById("bookingForm");
 
 if (bookingForm) {
