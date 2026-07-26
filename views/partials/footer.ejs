@@ -1,30 +1,26 @@
-<footer class="mt-16 border-t border-border bg-surface">
-  <div class="w-full px-6 py-6">
+<footer class="border-t border-border bg-surface mt-auto">
+  <div class="mx-auto max-w-7xl px-6 py-6">
     <div
-      class="flex flex-col items-center gap-4 md:grid md:grid-cols-3 md:items-center"
-    >
-      <div class="md:justify-self-start">
-        <h2 class="text-2xl font-bold text-primary">StayFinder</h2>
-      </div>
+      class="flex flex-col items-center gap-4 md:flex-row md:justify-between">
+      <h2 class="text-2xl font-bold text-primary">
+        StayFinder
+      </h2>
 
-      <div class="text-center md:justify-self-center">
-        <p class="text-sm text-muted">
-          © <%= new Date().getFullYear() %> StayFinder. All rights reserved.
-        </p>
-      </div>
+      <p class="text-center text-sm text-muted">
+        © <%= new Date().getFullYear() %> StayFinder. All rights reserved.
+      </p>
 
       <div
-        class="flex flex-wrap justify-center gap-4 text-sm text-muted md:justify-self-end md:justify-end"
-      >
-        <a href="#" class="transition-colors hover:text-primary">
+        class="flex flex-wrap items-center justify-center gap-4 text-sm text-muted">
+        <a href="/privacy" class="hover:text-primary transition">
           Privacy Policy
         </a>
 
-        <a href="#" class="transition-colors hover:text-primary">
+        <a href="/terms" class="hover:text-primary transition">
           Terms
         </a>
 
-        <a href="#" class="transition-colors hover:text-primary">
+        <a href="/contact" class="hover:text-primary transition">
           Contact
         </a>
       </div>
