@@ -15,6 +15,7 @@ const hostRouter = require("./routes/hostRouter");
 const authRouter = require("./routes/authRouter");
 const bookingRouter = require("./routes/bookingRouter");
 const paymentRouter = require("./routes/paymentRouter");
+const staticRouter = require("./routes/staticRouter");
 const rootDir = require("./utils/pathUtil");
 const errorsController = require("./controllers/errors");
 
@@ -97,6 +98,7 @@ app.use("/bookings", (req, res, next) => {
 
 app.use("/bookings", bookingRouter);
 app.use("/payment", paymentRouter);
+app.use("/", staticRouter);
 
 app.use("/host", (req, res, next) => {
   if (req.isLoggedIn) {
