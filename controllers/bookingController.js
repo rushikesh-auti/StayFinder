@@ -266,3 +266,35 @@ exports.getBookedDates = async (req, res) => {
 
   }
 };
+
+exports.getBookingSuccess = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.bookingId)
+      .populate("home")
+      .populate("user");
+
+    if (!booking) {
+      return res.redirect("/bookings");
+    }
+
+    if (booking.user._id.toString() !== req.session.user._id.toString()) {
+      return res.redirect("/bookings");
+    }
+
+    const nights = Math.ceil(
+      (booking.checkOut - booking.checkIn) / (1000 * 60 * 60 * 24)
+    );
+
+    res.render("store/booking-success", {
+      pageTitle: "Booking Confirmed",
+      currentPage: "bookings",
+      booking,
+      nights,
+      isLoggedIn: req.session.isLoggedIn,
+      user: req.session.user,
+    });
+  } catch (err) {
+    console.log(err);
+    res.redirect("/bookings");
+  }
+};
