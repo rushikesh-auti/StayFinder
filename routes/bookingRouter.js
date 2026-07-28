@@ -7,5 +7,6 @@ router.get("/check-availability/:homeId", bookingController.checkAvailability);
 router.post("/create/:homeId", bookingController.postBooking);
 router.post("/cancel/:bookingId", bookingController.cancelBooking);
 router.get("/:homeId/booked-dates", bookingController.getBookedDates);
+router.get("/success/:bookingId", bookingController.getBookingSuccess);
 
 module.exports = router;
