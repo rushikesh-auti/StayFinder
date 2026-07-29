@@ -303,7 +303,8 @@ exports.verifyPayment = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      redirectUrl: "/bookings",
+      redirectUrl: `/bookings/success/${booking._id}`,
+      bookingId: booking._id,
       message: "Payment verified successfully.",
     });
   } catch (err) {
