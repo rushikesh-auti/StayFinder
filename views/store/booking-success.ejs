@@ -1,0 +1,99 @@
+<%- include('../partials/head') %>
+
+<body class="bg-background">
+  <%- include('../partials/nav') %>
+
+<main class="mx-auto max-w-3xl px-4 py-12 lg:px-6">
+<div class="rounded-3xl bg-surface p-8 text-center shadow-card ring-1 ring-border/50">
+  <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100 text-green-600">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+  </div>
+
+  <h1 class="mt-6 text-3xl font-bold text-text sm:text-4xl">
+    Booking Confirmed!
+  </h1>
+
+  <p class="mt-3 text-muted">
+    Your payment was successful and your stay has been reserved.
+  </p>
+
+  <div class="mt-8 rounded-2xl border border-border bg-background p-6 text-left">
+    <div class="mb-4 flex items-center justify-between">
+      <h2 class="text-xl font-bold text-text">
+        Booking Details
+      </h2>
+
+      <span class="rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-700">
+        <%= booking.paymentStatus %>
+      </span>
+    </div>
+
+    <div class="space-y-3 text-sm sm:text-base">
+      <div class="flex justify-between">
+        <span class="text-muted">Property</span>
+        <span class="font-semibold text-text"><%= booking.home.houseName %></span>
+      </div>
+
+      <div class="flex justify-between">
+        <span class="text-muted">Location</span>
+        <span class="font-semibold text-text"><%= booking.home.location %></span>
+      </div>
+
+      <div class="flex justify-between">
+        <span class="text-muted">Check-In</span>
+        <span class="font-semibold text-text">
+          <%= booking.checkIn.toDateString() %>
+        </span>
+      </div>
+
+      <div class="flex justify-between">
+        <span class="text-muted">Check-Out</span>
+        <span class="font-semibold text-text">
+          <%= booking.checkOut.toDateString() %>
+        </span>
+      </div>
+
+      <div class="flex justify-between">
+        <span class="text-muted">Guests</span>
+        <span class="font-semibold text-text"><%= booking.guests %></span>
+      </div>
+
+      <div class="flex justify-between">
+        <span class="text-muted">Nights</span>
+        <span class="font-semibold text-text"><%= nights %></span>
+      </div>
+
+      <div class="flex justify-between border-t border-border pt-3 text-lg">
+        <span class="font-bold text-text">Total Paid</span>
+        <span class="font-bold text-primary">₹<%= booking.totalPrice %></span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+    <a href="/bookings"
+       class="rounded-xl bg-primary px-6 py-3 font-semibold text-white transition hover:bg-secondary">
+      View My Bookings
+    </a>
+
+    <a href="/homes"
+       class="rounded-xl border border-primary px-6 py-3 font-semibold text-primary transition hover:bg-primary hover:text-white">
+      Explore More Homes
+    </a>
+  </div>
+
+  <p class="mt-6 text-sm text-muted">
+    Booking ID: <span class="font-semibold text-text"><%= booking._id %></span>
+  </p>
+
+</div>
+  </main>
+
+<%- include('../partials/footer') %>
+
+</body>
+</html>
