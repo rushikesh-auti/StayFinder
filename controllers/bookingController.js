@@ -38,6 +38,12 @@ exports.getBookings = async (req, res) => {
         (booking.checkOut - booking.checkIn) /
         (1000 * 60 * 60 * 24)
       );
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      booking.canCancel =
+        booking.bookingStatus === "Confirmed" &&
+        new Date(booking.checkIn) > today;
     });
 
     res.render("store/bookings", {
