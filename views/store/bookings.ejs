@@ -133,10 +133,23 @@
                             method="POST"
                             class="flex-1">
 
-                            <button
-                                class="w-full rounded-xl bg-red-500 py-3 font-semibold text-white transition hover:bg-red-600">
-                                Cancel Booking
-                            </button>
+                            <% if (booking.canCancel) { %>
+  <button
+    type="button"
+    onclick="openCancelModal('<%= booking._id %>')"
+    class="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600"
+  >
+    Cancel Booking
+  </button>
+<% } else if (booking.bookingStatus === 'Confirmed') { %>
+  <button
+    type="button"
+    disabled
+    class="cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-600"
+  >
+    Cancellation Closed
+  </button>
+<% } %>
                         </form>
 
                         <% } else { %>
