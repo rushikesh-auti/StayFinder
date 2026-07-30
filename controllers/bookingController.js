@@ -169,12 +169,27 @@ exports.postBooking = async (req, res) => {
 
 exports.cancelBooking = async (req, res) => {
   try {
-    await Booking.findByIdAndUpdate(
-      req.params.bookingId,
-      {
-        bookingStatus: "Cancelled",
-      }
-    );
+    const booking = await Booking.findById(req.params.bookingId);
+    
+    if (!booking) {
+      return res.redirect("/bookings");
+    }
+
+    if (booking.user.toString() !== req.session.user._id.toString()) {
+      return res.redirect("/bookings");
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const checkInDate = new Date(booking.checkIn);
+
+    if (checkInDate <= today) {
+      return res.redirect("/bookings");
+    }
+
+    booking.bookingStatus = "Cancelled";
+    await booking.save();
 
     res.redirect("/bookings");
   } catch (err) {
