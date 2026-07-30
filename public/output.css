@@ -873,6 +873,10 @@ video {
   height: 15rem;
 }
 
+.h-12 {
+  height: 3rem;
+}
+
 .min-h-\[calc\(100vh-80px\)\] {
   min-height: calc(100vh - 80px);
 }
@@ -2177,6 +2181,11 @@ video {
   .lg\:py-28 {
     padding-top: 7rem;
     padding-bottom: 7rem;
+  }
+
+  .lg\:py-14 {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
   }
 
   .lg\:text-5xl {
