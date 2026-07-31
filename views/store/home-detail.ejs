@@ -74,6 +74,50 @@
             Property Highlights
           </h2>
 
+          <section class="rounded-2xl bg-surface p-7 shadow-card ring-1 ring-border/50 sm:p-8">
+          <div class="mb-6 flex items-center justify-between">
+            <h2 class="flex items-center gap-2 text-xl font-bold text-text sm:text-2xl">
+              <span class="inline-block h-6 w-1.5 rounded-full bg-primary"></span>
+              Guest Reviews
+            </h2>
+
+            <span class="text-sm font-semibold text-text">
+              ★ <%= home.rating %> / 5
+            </span>
+          </div>
+
+          <% if (reviews && reviews.length > 0) { %>
+            <div class="space-y-5">
+              <% reviews.forEach(review => { %>
+                <div class="rounded-xl border border-border p-5">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="font-semibold text-text">
+                        <%= review.user ? review.user.firstName : "Guest" %>
+                      </p>
+                      <p class="text-xs text-muted">
+                        <%= new Date(review.createdAt).toLocaleDateString() %>
+                      </p>
+                    </div>
+
+                    <div class="text-sm font-semibold text-amber-500">
+                      ★ <%= review.rating %> / 5
+                    </div>
+                  </div>
+
+                  <p class="mt-3 leading-7 text-muted">
+                    <%= review.comment %>
+                  </p>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="rounded-xl border border-dashed border-border p-6 text-center">
+              <p class="text-muted">No reviews yet. Be the first to review this property!</p>
+            </div>
+          <% } %>
+          </section>
+
           <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
             <div
               class="group flex flex-col items-center gap-2 rounded-xl border border-border p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md"
