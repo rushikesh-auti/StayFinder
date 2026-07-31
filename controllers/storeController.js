@@ -114,6 +114,8 @@ exports.postRemoveFromFavourite = async (req, res, next) => {
 exports.getHomeDetails = async (req, res, next) => {
   try {
     const homeId = req.params.homeId;
+    const reviewError = req.session.reviewError;
+    delete req.session.reviewError;
     const home = await Home.findById(homeId);
 
     if (!home) {
@@ -132,6 +134,7 @@ exports.getHomeDetails = async (req, res, next) => {
       currentPage: "Home",
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,
+      reviewError,
     });
   } catch (err) {
     console.log(err);

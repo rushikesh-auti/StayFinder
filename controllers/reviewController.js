@@ -17,7 +17,8 @@ exports.addReview = async (req, res) => {
     });
 
     if (!booking) {
-      return res.status(403).send("You can review only after completing a stay.");
+      req.session.reviewError = "You can review only after completing a stay.";
+      return res.redirect(`/homes/${homeId}`);
     }
 
     // prevent duplicate review
@@ -27,7 +28,8 @@ exports.addReview = async (req, res) => {
     });
 
     if (existingReview) {
-      return res.status(400).send("You have already reviewed this property.");
+      req.session.reviewError = "You have already reviewed this property.";
+      return res.redirect(`/homes/${homeId}`);
     }
 
     await Review.create({
@@ -49,6 +51,7 @@ exports.addReview = async (req, res) => {
     res.redirect(`/homes/${homeId}`);
   } catch (err) {
     console.log(err);
+    req.session.reviewError = "We couldn't submit your review. Please try again.";
     res.redirect(`/homes/${req.params.homeId}`);
   }
 };
