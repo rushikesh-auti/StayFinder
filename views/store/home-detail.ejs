@@ -22,27 +22,18 @@
       </div>
 
       <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
-        <h1
-          class="text-3xl font-bold text-white drop-shadow-sm sm:text-4xl lg:text-5xl">
+        <h1 class="text-3xl font-bold text-white drop-shadow-sm sm:text-4xl lg:text-5xl">
           <%= home.houseName %>
         </h1>
 
         <div class="mt-3 flex flex-wrap items-center gap-3">
-          <div
-            class="flex items-center gap-1.5 rounded-full bg-white/90 px-3.5 py-1.5 shadow-sm backdrop-blur"
-          >
+          <div class="flex items-center gap-1.5 rounded-full bg-white/90 px-3.5 py-1.5 shadow-sm backdrop-blur">
             <span class="text-amber-500">★</span>
-            <span class="text-sm font-semibold text-text">
-              <%= home.rating %>
-            </span>
+            <span class="text-sm font-semibold text-text"><%= home.rating %></span>
           </div>
 
-          <div
-            class="flex items-center gap-1.5 rounded-full bg-white/90 px-3.5 py-1.5 shadow-sm backdrop-blur"
-          >
-            <span class="text-sm font-semibold text-text">
-              <%= home.location %>
-            </span>
+          <div class="flex items-center gap-1.5 rounded-full bg-white/90 px-3.5 py-1.5 shadow-sm backdrop-blur">
+            <span class="text-sm font-semibold text-text"><%= home.location %></span>
           </div>
         </div>
       </div>
@@ -50,14 +41,11 @@
 
     <div class="mt-10 grid gap-8 lg:grid-cols-3 lg:gap-10">
       <div class="space-y-6 lg:col-span-2">
-        <section
-          class="rounded-2xl bg-surface p-7 shadow-card ring-1 ring-border/50 sm:p-8"
-        >
-          <h2
-            class="mb-4 flex items-center gap-2 text-xl font-bold text-text sm:text-2xl"
-          >
+
+        <section class="rounded-2xl bg-surface p-7 shadow-card ring-1 ring-border/50 sm:p-8">
+          <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-text sm:text-2xl">
             <span class="inline-block h-6 w-1.5 rounded-full bg-primary"></span>
-            About this Property
+            About this property
           </h2>
 
           <p class="text-[15px] leading-8 text-muted">
@@ -65,125 +53,109 @@
           </p>
         </section>
 
-        <section
-          class="rounded-2xl bg-surface p-7 shadow-card ring-1 ring-border/50 sm:p-8"
-        >
-          <h2
-            class="mb-6 flex items-center gap-2 text-xl font-bold text-text sm:text-2xl">
-            <span class="inline-block h-6 w-1.5 rounded-full bg-primary"></span>
-            Property Highlights
-          </h2>
-
-
         <section class="rounded-2xl bg-surface p-7 shadow-card ring-1 ring-border/50 sm:p-8">
           <h2 class="mb-6 flex items-center gap-2 text-xl font-bold text-text sm:text-2xl">
             <span class="inline-block h-6 w-1.5 rounded-full bg-primary"></span>
-            Property Highlights
+            Property highlights
           </h2>
 
           <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
-            <div class="group flex flex-col items-center gap-2 rounded-xl border border-border p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md">
-              <span class="text-2xl transition-transform duration-300 group-hover:scale-110">🏠</span>
-              <p class="text-sm font-semibold text-text">Entire Home</p>
-            </div>
+            <% const highlights = [
+              { label: "Entire home", icon: "M3 10.5 10 4l7 6.5V17a1 1 0 0 1-1 1h-3.5a.5.5 0 0 1-.5-.5V13a2 2 0 0 0-4 0v4.5a.5.5 0 0 1-.5.5H4a1 1 0 0 1-1-1v-6.5Z" },
+              { label: "Free Wi-Fi", icon: "M10 16.25a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5ZM6.3 12.3a5.25 5.25 0 0 1 7.4 0l-1.42 1.42a3.25 3.25 0 0 0-4.56 0L6.3 12.3ZM3.5 9.5a9.25 9.25 0 0 1 13 0l-1.42 1.43a7.25 7.25 0 0 0-10.16 0L3.5 9.5Z" },
+              { label: "Free parking", icon: "M6 3.5A1.5 1.5 0 0 1 7.5 2h4A4.5 4.5 0 0 1 16 6.5v.75a2.75 2.75 0 0 1-1.75 2.56l.62 5.06a1 1 0 0 1-1 1.13h-.5a1 1 0 0 1-.99-.87l-.2-1.63H7.82l-.2 1.63a1 1 0 0 1-.99.87h-.5a1 1 0 0 1-1-1.13l.62-5.06A2.75 2.75 0 0 1 4 7.25V6.5A3 3 0 0 1 6 3.5Zm2 3.75a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2H8Z" },
+              { label: "Full kitchen", icon: "M5 2a1 1 0 0 1 1 1v3.05a2.5 2.5 0 0 0 5 0V3a1 1 0 1 1 2 0v3.05a4.5 4.5 0 0 1-3.5 4.39V17a1 1 0 1 1-2 0V10.44A4.5 4.5 0 0 1 4 6.05V3a1 1 0 0 1 1-1Zm10 0a1 1 0 0 1 1 1v14a1 1 0 1 1-2 0v-5h-1a1 1 0 0 1-1-1V6a4 4 0 0 1 4-4Z" },
+              { label: "Smart TV", icon: "M3 4.5A1.5 1.5 0 0 1 4.5 3h11A1.5 1.5 0 0 1 17 4.5v8A1.5 1.5 0 0 1 15.5 14H11v1.5h2a.75.75 0 0 1 0 1.5H7a.75.75 0 0 1 0-1.5h2V14H4.5A1.5 1.5 0 0 1 3 12.5v-8Z" },
+              { label: "Fresh linens", icon: "M4 3a1 1 0 0 0-1 1v3a5 5 0 0 0 5 5h.09A5.5 5.5 0 0 0 9.5 17H15a1 1 0 1 0 0-2h-1v-2.09A5 5 0 0 0 18 8V4a1 1 0 1 0-2 0v4a3 3 0 0 1-3 3h-1V8a1 1 0 1 0-2 0v3H9a3 3 0 0 1-3-3V4a1 1 0 0 0-1-1H4Z" },
+            ]; %>
 
-            <div class="group flex flex-col items-center gap-2 rounded-xl border border-border p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md">
-              <span class="text-2xl transition-transform duration-300 group-hover:scale-110">📶</span>
-              <p class="text-sm font-semibold text-text">Free WiFi</p>
-            </div>
-
-            <div class="group flex flex-col items-center gap-2 rounded-xl border border-border p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md">
-              <span class="text-2xl transition-transform duration-300 group-hover:scale-110">🚗</span>
-              <p class="text-sm font-semibold text-text">Parking</p>
-            </div>
-
-            <div class="group flex flex-col items-center gap-2 rounded-xl border border-border p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md">
-              <span class="text-2xl transition-transform duration-300 group-hover:scale-110">🍽️</span>
-              <p class="text-sm font-semibold text-text">Kitchen</p>
-            </div>
-
-            <div class="group flex flex-col items-center gap-2 rounded-xl border border-border p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md">
-              <span class="text-2xl transition-transform duration-300 group-hover:scale-110">📺</span>
-              <p class="text-sm font-semibold text-text">Smart TV</p>
-            </div>
-
-            <div class="group flex flex-col items-center gap-2 rounded-xl border border-border p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md">
-              <span class="text-2xl transition-transform duration-300 group-hover:scale-110">🧹</span>
-              <p class="text-sm font-semibold text-text">Clean Rooms</p>
-            </div>
+            <% highlights.forEach(item => { %>
+              <div class="group flex flex-col items-center gap-2.5 rounded-xl border border-border p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md">
+                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="<%= item.icon %>" />
+                  </svg>
+                </span>
+                <p class="text-sm font-semibold text-text"><%= item.label %></p>
+              </div>
+            <% }) %>
           </div>
         </section>
 
-        <section class="mt-2 rounded-2xl bg-surface p-7 shadow-card ring-1 ring-border/50 sm:p-8">
+        <section class="rounded-2xl bg-surface p-7 shadow-card ring-1 ring-border/50 sm:p-8">
           <div class="mb-6 flex items-center justify-between">
             <h2 class="flex items-center gap-2 text-xl font-bold text-text sm:text-2xl">
               <span class="inline-block h-6 w-1.5 rounded-full bg-primary"></span>
-              Guest Reviews
+              Guest reviews
             </h2>
 
-            <span class="text-sm font-semibold text-text">
-              ★ <%= home.rating %> / 5
-            </span>
+            <div class="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5">
+              <svg class="h-4 w-4 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6L1.3 7.7l6.1-.6L10 1.5z" />
+              </svg>
+              <span class="text-sm font-semibold text-text"><%= home.rating %> / 5</span>
+            </div>
           </div>
 
-          <% if (reviewError) { %>
-            <div
-              class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700"
-              role="alert"
-            >
+          <% if (typeof reviewError !== "undefined" && reviewError) { %>
+            <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700" role="alert">
               <%= reviewError %>
             </div>
           <% } %>
 
           <% if (reviews && reviews.length > 0) { %>
-            <div class="space-y-5">
-              <% reviews.forEach(review => { %>
-                <div class="rounded-xl border border-border p-5">
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="font-semibold text-text">
-                        <%= review.user ? review.user.firstName : "Guest" %>
-                      </p>
-                      <p class="text-xs text-muted">
-                        <%= new Date(review.createdAt).toLocaleDateString() %>
-                      </p>
+            <div class="space-y-4">
+              <% reviews.forEach(review => {
+                const name = review.user ? review.user.firstName : "Guest";
+                const initial = name.charAt(0).toUpperCase();
+              %>
+                <div class="rounded-xl border border-border p-5 transition-colors duration-200 hover:border-primary/30">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                        <%= initial %>
+                      </div>
+                      <div>
+                        <p class="font-semibold text-text"><%= name %></p>
+                        <p class="text-xs text-muted">
+                          <%= new Date(review.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) %>
+                        </p>
+                      </div>
                     </div>
 
-                    <div class="text-sm font-semibold text-amber-500">
-                      ★ <%= review.rating %> / 5
+                    <div class="flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-600">
+                      <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6L1.3 7.7l6.1-.6L10 1.5z" />
+                      </svg>
+                      <%= review.rating %>
                     </div>
                   </div>
 
-                  <p class="mt-3 leading-7 text-muted">
-                    <%= review.comment %>
-                  </p>
+                  <p class="mt-3 text-[15px] leading-7 text-muted"><%= review.comment %></p>
                 </div>
               <% }) %>
             </div>
           <% } else { %>
-            <div class="rounded-xl border border-dashed border-border p-6 text-center">
-              <p class="text-muted">No reviews yet. Be the first to review this property!</p>
+            <div class="rounded-xl border border-dashed border-border p-8 text-center">
+              <p class="font-semibold text-text">No reviews yet</p>
+              <p class="mt-1 text-sm text-muted">Be the first to share how your stay went.</p>
             </div>
           <% } %>
 
           <% if (isLoggedIn) { %>
-            <form
-              action="/reviews/<%= home._id %>"
-              method="POST"
-              class="mt-8 space-y-4 rounded-2xl border border-border p-6"
-            >
-              <h3 class="text-lg font-bold text-text">Write a Review</h3>
+            <form action="/reviews/<%= home._id %>" method="POST" class="mt-8 space-y-4 rounded-2xl border border-border p-6">
+              <h3 class="text-lg font-bold text-text">Write a review</h3>
 
               <div>
                 <label class="mb-2 block text-sm font-medium text-text">Rating</label>
                 <select
                   name="rating"
                   required
-                  class="w-full rounded-xl border border-border bg-background px-4 py-3 focus:border-primary focus:outline-none"
+                  class="w-full rounded-xl border border-border bg-background px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="">Select rating</option>
                   <option value="5">★★★★★ Excellent</option>
-                  <option value="4">★★★★☆ Very Good</option>
+                  <option value="4">★★★★☆ Very good</option>
                   <option value="3">★★★☆☆ Good</option>
                   <option value="2">★★☆☆☆ Fair</option>
                   <option value="1">★☆☆☆☆ Poor</option>
@@ -191,14 +163,14 @@
               </div>
 
               <div>
-                <label class="mb-2 block text-sm font-medium text-text">Your Review</label>
+                <label class="mb-2 block text-sm font-medium text-text">Your review</label>
                 <textarea
                   name="comment"
                   rows="4"
                   maxlength="500"
                   required
                   placeholder="Share your experience..."
-                  class="w-full rounded-xl border border-border bg-background px-4 py-3 focus:border-primary focus:outline-none"
+                  class="w-full rounded-xl border border-border bg-background px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 ></textarea>
               </div>
 
@@ -206,17 +178,22 @@
                 type="submit"
                 class="rounded-xl bg-primary px-6 py-3 font-semibold text-white transition hover:bg-secondary"
               >
-                Submit Review
+                Submit review
               </button>
             </form>
           <% } %>
         </section>
-        </section>
       </div>
 
       <aside>
-        <div
-          class="sticky top-28 rounded-3xl bg-surface p-8 shadow-card ring-1 ring-border/50">
+        <div class="sticky top-28 rounded-3xl bg-surface p-8 shadow-card ring-1 ring-border/50">
+          <% if (typeof home.price !== "undefined") { %>
+            <div class="mb-6 flex items-baseline gap-1.5">
+              <span class="text-2xl font-bold text-text">₹<%= home.price %></span>
+              <span class="text-sm text-muted">/ night</span>
+            </div>
+          <% } %>
+
           <%
           const initialBookingError =
             typeof bookingError !== "undefined" ? bookingError : "";
@@ -224,7 +201,7 @@
 
           <div
             id="booking-error"
-            class="mb-5 rounded-xl bg-red-100 p-4 text-red-600"
+            class="mb-5 rounded-xl bg-red-50 border border-red-200 p-4 text-sm font-medium text-red-600"
             <% if (!initialBookingError) { %>
             style="display: none;"
             <% } %>
@@ -238,54 +215,44 @@
             href="/login"
             class="block w-full rounded-xl bg-primary py-4 text-center text-lg font-semibold text-white transition duration-300 hover:bg-secondary"
           >
-            Login to Book
+            Login to book
           </a>
 
           <% } else if (home.host.toString() === user._id.toString()) { %>
 
-          <div class="rounded-xl bg-yellow-100 p-4 text-center font-semibold text-yellow-800">
+          <div class="rounded-xl bg-yellow-50 border border-yellow-200 p-4 text-center font-semibold text-yellow-800">
             You cannot book your own property.
           </div>
 
           <% } else { %>
 
-          <form
-            id="bookingForm"
-            class="mt-6 space-y-5"
-          >
-            <div>
-              <label class="mb-2 block text-sm font-medium text-text">
-                Check-in
-              </label>
+          <form id="bookingForm" class="space-y-5">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="mb-2 block text-sm font-medium text-text">Check-in</label>
+                <input
+                  id="checkIn"
+                  type="date"
+                  name="checkIn"
+                  required
+                  class="w-full rounded-xl border border-border bg-background px-3 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
 
-              <input
-                id="checkIn"
-                type="date"
-                name="checkIn"
-                required
-                class="w-full rounded-xl border border-border bg-background px-4 py-3 focus:border-primary focus:outline-none"
-              />
+              <div>
+                <label class="mb-2 block text-sm font-medium text-text">Check-out</label>
+                <input
+                  id="checkOut"
+                  type="date"
+                  name="checkOut"
+                  required
+                  class="w-full rounded-xl border border-border bg-background px-3 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
             </div>
 
             <div>
-              <label class="mb-2 block text-sm font-medium text-text">
-                Check-out
-              </label>
-
-              <input
-                id="checkOut"
-                type="date"
-                name="checkOut"
-                required
-                class="w-full rounded-xl border border-border bg-background px-4 py-3 focus:border-primary focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label class="mb-2 block text-sm font-medium text-text">
-                Guests
-              </label>
-
+              <label class="mb-2 block text-sm font-medium text-text">Guests</label>
               <input
                 id="guests"
                 type="number"
@@ -294,7 +261,7 @@
                 min="1"
                 max="10"
                 required
-                class="w-full rounded-xl border border-border bg-background px-4 py-3 focus:border-primary focus:outline-none"
+                class="w-full rounded-xl border border-border bg-background px-4 py-3 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
 
@@ -303,38 +270,40 @@
               type="submit"
               class="w-full rounded-xl bg-primary py-4 text-lg font-semibold text-white transition duration-300 hover:bg-secondary disabled:cursor-not-allowed disabled:bg-gray-400"
             >
-              Reserve Now
+              Reserve now
             </button>
           </form>
 
-          <% } %>
-
-          <p class="mt-4 text-center text-xs text-muted">
-            Your booking will be confirmed instantly.
+          <p class="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 1a4 4 0 0 0-4 4v2H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1h-1V5a4 4 0 0 0-4-4Zm2 6V5a2 2 0 1 0-4 0v2h4Z" clip-rule="evenodd" />
+            </svg>
+            Your booking will be confirmed instantly
           </p>
+
+          <% } %>
 
           <div class="mt-7 space-y-4 border-t border-border pt-6">
             <div class="flex items-center justify-between">
               <span class="text-sm text-muted">Rating</span>
-
               <span class="flex items-center gap-1 font-semibold text-text">
-                <span class="text-amber-500">★</span>
+                <svg class="h-4 w-4 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6L1.3 7.7l6.1-.6L10 1.5z" />
+                </svg>
                 <%= home.rating %>
               </span>
             </div>
 
             <div class="flex items-center justify-between">
               <span class="text-sm text-muted">Location</span>
-
-              <span class="font-semibold text-text">
-                <%= home.location %>
-              </span>
+              <span class="font-semibold text-text"><%= home.location %></span>
             </div>
           </div>
         </div>
       </aside>
     </div>
   </main>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
   const checkInInput = document.querySelector('input[name="checkIn"]');
