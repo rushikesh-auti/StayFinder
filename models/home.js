@@ -28,6 +28,16 @@ const homeSchema = new mongoose.Schema(
 
     description: String,
 
+    averageRating: {
+      type: Number,
+      default: 0,
+    },
+    
+    reviewCount: {
+      type: Number,
+      default: 0,
+    },
+
     host: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
