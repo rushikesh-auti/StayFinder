@@ -1,5 +1,6 @@
 const Home = require("../models/home");
 const User = require("../models/user");
+const Review = require("../models/review");
 
 exports.getIndex = (req, res, next) => {
   console.log("Session Value: ", req.session);
@@ -110,20 +111,30 @@ exports.postRemoveFromFavourite = async (req, res, next) => {
   res.redirect("/favourites");
 };
 
-exports.getHomeDetails = (req, res, next) => {
-  const homeId = req.params.homeId;
-  Home.findById(homeId).then((home) => {
+exports.getHomeDetails = async (req, res, next) => {
+  try {
+    const homeId = req.params.homeId;
+    const home = await Home.findById(homeId);
+
     if (!home) {
       console.log("Home not found");
-      res.redirect("/homes");
-    } else {
-      res.render("store/home-detail", {
-        home: home,
-        pageTitle: "Home Detail",
-        currentPage: "Home",
-        isLoggedIn: req.isLoggedIn,
-        user: req.session.user,
-      });
+      return res.redirect("/homes");
     }
-  });
+
+    const reviews = await Review.find({ home: home._id })
+      .populate("user")
+      .sort({ createdAt: -1 });
+
+    res.render("store/home-detail", {
+      home,
+      reviews,
+      pageTitle: "Home Detail",
+      currentPage: "Home",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+    });
+  } catch (err) {
+    console.log(err);
+    res.redirect("/homes");
+  }
 };
