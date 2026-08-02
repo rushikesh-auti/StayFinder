@@ -90,11 +90,14 @@ exports.postSignup = [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
+      const validationErrors = errors.array().map((err) => err.msg);
+      req.flash("error", validationErrors[0]);
+
       return res.status(422).render("auth/signup", {
         pageTitle: "Signup",
         currentPage: "signup",
         isLoggedIn: false,
-        errors: errors.array().map((err) => err.msg),
+        errors: validationErrors,
         oldInput: {
           firstName,
           lastName,
@@ -109,6 +112,8 @@ exports.postSignup = [
     User.findOne({ email })
       .then((existingUser) => {
         if (existingUser) {
+          req.flash("error", "Email already exists");
+
           return res.status(422).render("auth/signup", {
             pageTitle: "Signup",
             currentPage: "signup",
@@ -140,11 +145,13 @@ exports.postSignup = [
       })
       .then((savedUser) => {
         if (savedUser) {
+          req.flash("success", "Account created successfully. Please log in.");
           return res.redirect("/login");
         }
       })
       .catch((err) => {
         console.log("Error While Saving User:", err);
+        req.flash("error", "Something went wrong. Please try again.");
 
         return res.status(500).render("auth/signup", {
           pageTitle: "Signup",
@@ -170,6 +177,8 @@ exports.postLogin = async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (!user) {
+      req.flash("error", "Invalid email or password");
+
       return res.status(422).render("auth/login", {
         pageTitle: "Login",
         currentPage: "login",
@@ -183,6 +192,8 @@ exports.postLogin = async (req, res, next) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
+      req.flash("error", "Invalid email or password");
+
       return res.status(422).render("auth/login", {
         pageTitle: "Login",
         currentPage: "login",
@@ -196,6 +207,7 @@ exports.postLogin = async (req, res, next) => {
     req.session.isLoggedIn = true;
 
     req.session.user = user;
+    req.flash("success", "Welcome back!");
 
     await req.session.save((err) => {
       if (err) {
@@ -206,6 +218,7 @@ exports.postLogin = async (req, res, next) => {
 
   } catch (err) {
     console.log(err);
+    req.flash("error", "Something went wrong. Please try again.");
 
     res.status(500).render("auth/login", {
       pageTitle: "Login",
@@ -219,7 +232,16 @@ exports.postLogin = async (req, res, next) => {
 };
 
 exports.postLogout = (req, res, next) => {
-  req.session.destroy(() => {
+  req.session.isLoggedIn = false;
+  req.session.user = null;
+  req.flash("success", "You have been logged out successfully.");
+
+  req.session.save((err) => {
+    if (err) {
+      console.log(err);
+      return next(err);
+    }
+
     res.redirect("/login");
   });
 };
