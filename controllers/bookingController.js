@@ -124,6 +124,7 @@ exports.postBooking = async (req, res) => {
     const home = await Home.findById(req.params.homeId);
 
     if (!home) {
+      req.flash("error", "Property not found.");
       return res.redirect("/homes");
     }
 
@@ -172,10 +173,12 @@ exports.cancelBooking = async (req, res) => {
     const booking = await Booking.findById(req.params.bookingId);
     
     if (!booking) {
+      req.flash("error", "Booking not found.");
       return res.redirect("/bookings");
     }
 
     if (booking.user.toString() !== req.session.user._id.toString()) {
+      req.flash("error", "You cannot cancel this booking.");
       return res.redirect("/bookings");
     }
 
@@ -185,12 +188,14 @@ exports.cancelBooking = async (req, res) => {
     const checkInDate = new Date(booking.checkIn);
 
     if (checkInDate <= today) {
+      req.flash("error", "This booking cannot be cancelled anymore.");
       return res.redirect("/bookings");
     }
 
     booking.bookingStatus = "Cancelled";
     await booking.save();
 
+    req.flash("success", "Booking cancelled successfully.");
     res.redirect("/bookings");
   } catch (err) {
     console.log(err);
