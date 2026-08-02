@@ -1,50 +1,105 @@
-<% if (successMessage && successMessage.length) { %>
-  <div
-    id="toast-success"
-    class="fixed right-4 top-4 z-[9999] w-full max-w-sm rounded-2xl bg-green-500 px-5 py-4 text-white shadow-2xl sm:right-5 sm:top-5"
-  >
-    <div class="flex items-start gap-3">
-      <div class="mt-0.5 text-xl">✅</div>
-      <div class="flex-1">
-        <p class="font-semibold">Success</p>
-        <p class="text-sm text-white/90"><%= successMessage[0] %></p>
-      </div>
-      <button
-        type="button"
-        onclick="document.getElementById('toast-success').remove()"
-        class="text-white/80 hover:text-white"
-      >
-        ✕
-      </button>
-    </div>
-  </div>
-<% } %>
+<%
+  const getMessageList = (value) => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value.filter(Boolean);
+    return [value];
+  };
 
-<% if (errorMessage && errorMessage.length) { %>
-  <div
-    id="toast-error"
-    class="fixed right-4 top-4 z-[9999] w-full max-w-sm rounded-2xl bg-red-500 px-5 py-4 text-white shadow-2xl sm:right-5 sm:top-5"
-  >
-    <div class="flex items-start gap-3">
-      <div class="mt-0.5 text-xl">⚠️</div>
-      <div class="flex-1">
-        <p class="font-semibold">Error</p>
-        <p class="text-sm text-white/90"><%= errorMessage[0] %></p>
+  const { success, error } = flashMessages();
+  const successItems = getMessageList(success);
+  const errorItems = getMessageList(error);
+%>
+
+<div class="fixed right-4 top-4 z-[9999] flex w-full max-w-sm flex-col gap-3 sm:right-5 sm:top-5">
+  <% successItems.forEach((message, index) => { %>
+    <div
+      data-toast
+      class="relative overflow-hidden rounded-2xl border border-emerald-100 bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.18)] ring-1 ring-black/5"
+    >
+      <div class="flex items-start gap-3">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold text-slate-900">Success</p>
+          <p class="mt-0.5 text-sm leading-6 text-slate-600"><%= message %></p>
+        </div>
+
+        <button
+          type="button"
+          onclick="this.closest('[data-toast]').remove()"
+          class="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+          aria-label="Close notification"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
       </div>
-      <button
-        type="button"
-        onclick="document.getElementById('toast-error').remove()"
-        class="text-white/80 hover:text-white"
-      >
-        ✕
-      </button>
+
+      <div class="absolute bottom-0 left-0 h-1 w-full bg-emerald-100">
+        <div class="toast-progress h-full bg-emerald-500"></div>
+      </div>
     </div>
-  </div>
-<% } %>
+  <% }) %>
+
+  <% errorItems.forEach((message, index) => { %>
+    <div
+      data-toast
+      class="relative overflow-hidden rounded-2xl border border-rose-100 bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.18)] ring-1 ring-black/5"
+    >
+      <div class="flex items-start gap-3">
+        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-rose-500 text-white shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold text-slate-900">Error</p>
+          <p class="mt-0.5 text-sm leading-6 text-slate-600"><%= message %></p>
+        </div>
+
+        <button
+          type="button"
+          onclick="this.closest('[data-toast]').remove()"
+          class="rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+          aria-label="Close notification"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="absolute bottom-0 left-0 h-1 w-full bg-rose-100">
+        <div class="toast-progress h-full bg-rose-500"></div>
+      </div>
+    </div>
+  <% }) %>
+</div>
+
+<style>
+  .toast-progress {
+    animation: toast-progress 3.5s linear forwards;
+    transform-origin: left;
+  }
+
+  @keyframes toast-progress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+</style>
 
 <script>
   setTimeout(() => {
-    document.getElementById("toast-success")?.remove();
-    document.getElementById("toast-error")?.remove();
+    document.querySelectorAll('[data-toast]').forEach((toast) => toast.remove());
   }, 3500);
 </script>
