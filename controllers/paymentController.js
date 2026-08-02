@@ -301,6 +301,8 @@ exports.verifyPayment = async (req, res) => {
       }
     });
 
+    req.flash("success", "Payment verified successfully.");
+
     return res.status(200).json({
       success: true,
       redirectUrl: `/bookings/success/${booking._id}`,
