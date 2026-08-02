@@ -57,6 +57,7 @@ exports.searchHomes = async (req, res) => {
 
 exports.getFavouriteList = async (req, res, next) => {
   if (!req.session?.user?._id) {
+    req.flash("error", "Please log in to view your favourites.");
     return res.redirect("/login");
   }
 
@@ -73,6 +74,7 @@ exports.getFavouriteList = async (req, res, next) => {
 
 exports.postAddToFavourite = async (req, res, next) => {
   if (!req.session?.user?._id) {
+    req.flash("error", "Please log in to save favourites.");
     return res.redirect("/login");
   }
 
@@ -81,10 +83,12 @@ exports.postAddToFavourite = async (req, res, next) => {
   const home = await Home.findById(homeId);
 
   if (!home) {
+    req.flash("error", "Property not found.");
     return res.redirect("/homes");
   }
 
   if (home.host.toString() === userId.toString()) {
+    req.flash("error", "You cannot add your own property to favourites.");
     return res.redirect(`/homes/${homeId}`);
   }
 
@@ -93,11 +97,13 @@ exports.postAddToFavourite = async (req, res, next) => {
     user.favourites.push(homeId);
     await user.save();
   }
+  req.flash("success", "Added to favourites.");
   res.redirect("/favourites");
 };
 
 exports.postRemoveFromFavourite = async (req, res, next) => {
   if (!req.session?.user?._id) {
+    req.flash("error", "Please log in to update favourites.");
     return res.redirect("/login");
   }
 
@@ -108,14 +114,13 @@ exports.postRemoveFromFavourite = async (req, res, next) => {
     user.favourites = user.favourites.filter((fav) => fav != homeId);
     await user.save();
   }
+  req.flash("success", "Removed from favourites.");
   res.redirect("/favourites");
 };
 
 exports.getHomeDetails = async (req, res, next) => {
   try {
     const homeId = req.params.homeId;
-    const reviewError = req.session.reviewError;
-    delete req.session.reviewError;
     const home = await Home.findById(homeId);
 
     if (!home) {
@@ -134,7 +139,6 @@ exports.getHomeDetails = async (req, res, next) => {
       currentPage: "Home",
       isLoggedIn: req.isLoggedIn,
       user: req.session.user,
-      reviewError,
     });
   } catch (err) {
     console.log(err);

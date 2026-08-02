@@ -130,7 +130,7 @@ exports.postAddHome = async (req, res) => {
     await home.save();
 
     console.info("Home saved successfully.");
-
+    req.flash("success", "Property added successfully.");
     res.redirect("/host/host-home-list");
 
   } catch (err) {
@@ -192,7 +192,7 @@ exports.postEditHome = async (req, res) => {
     await home.save();
 
     console.info("Home updated successfully.");
-
+    req.flash("success", "Property updated successfully.");
     res.redirect("/host/host-home-list");
 
   } catch (err) {
@@ -251,6 +251,7 @@ exports.postDeleteHome = async (req, res) => {
     });
 
     console.info("Home and related bookings deleted successfully.");
+    req.flash("success", "Property deleted successfully.");
     res.redirect("/host/host-home-list");
 
   } catch (err) {
