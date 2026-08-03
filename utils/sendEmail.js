@@ -12,6 +12,8 @@ exports.sendBookingConfirmation = async (
     return;
   }
 
+  console.log('USER EMAIL RECEIVED:', userEmail);
+
   const mailOptions = {
     from: senderAddress(),
     to: userEmail,
@@ -32,7 +34,12 @@ exports.sendBookingConfirmation = async (
     `,
   };
 
-  await emailService.sendMail(mailOptions);
+  try {
+    const result = await emailService.sendMail(mailOptions);
+    console.log('USER EMAIL SENT SUCCESSFULLY:', result);
+  } catch (error) {
+    console.error('USER EMAIL FAILED:', error);
+  }
 };
 
 exports.sendHostNotification = async (
