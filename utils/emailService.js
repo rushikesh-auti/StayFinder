@@ -19,6 +19,21 @@ const smtpTransporter = nodemailer.createTransport({
   socketTimeout: 20_000,
 });
 
+const hasSmtpConfig = (env = process.env) => Boolean(env.EMAIL_USER && env.EMAIL_PASS);
+const hasResendConfig = (env = process.env) => Boolean(env.RESEND_API_KEY && env.EMAIL_FROM);
+
+const resolveEmailTransport = (env = process.env) => {
+  if (hasSmtpConfig(env)) {
+    return "smtp";
+  }
+
+  if (hasResendConfig(env)) {
+    return "resend";
+  }
+
+  return "none";
+};
+
 const sendWithResend = async ({ from, to, subject, html }) => {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -36,16 +51,20 @@ const sendWithResend = async ({ from, to, subject, html }) => {
   return response.json();
 };
 
-exports.hasEmailConfig = () =>
-  Boolean(
-    (process.env.RESEND_API_KEY && process.env.EMAIL_FROM) ||
-      (process.env.EMAIL_USER && process.env.EMAIL_PASS)
-  );
+exports.hasEmailConfig = () => resolveEmailTransport() !== "none";
 
 exports.sendMail = async (mailOptions) => {
-  if (process.env.RESEND_API_KEY) {
+  const transport = resolveEmailTransport();
+
+  if (transport === "resend") {
     return sendWithResend(mailOptions);
   }
 
-  return smtpTransporter.sendMail(mailOptions);
+  if (transport === "smtp") {
+    return smtpTransporter.sendMail(mailOptions);
+  }
+
+  throw new Error("No email transport configured.");
 };
+
+exports.resolveEmailTransport = resolveEmailTransport;
