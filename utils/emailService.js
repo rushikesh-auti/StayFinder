@@ -23,12 +23,12 @@ const hasSmtpConfig = (env = process.env) => Boolean(env.EMAIL_USER && env.EMAIL
 const hasResendConfig = (env = process.env) => Boolean(env.RESEND_API_KEY && env.EMAIL_FROM);
 
 const resolveEmailTransport = (env = process.env) => {
-  if (hasSmtpConfig(env)) {
-    return "smtp";
-  }
-
   if (hasResendConfig(env)) {
     return "resend";
+  }
+
+  if (hasSmtpConfig(env)) {
+    return "smtp";
   }
 
   return "none";
