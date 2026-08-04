@@ -4,6 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title><%= pageTitle %></title>
+    <script>
+      (function () {
+        const storedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = storedTheme === 'dark' || (!storedTheme && prefersDark);
+        document.documentElement.classList.toggle('dark', isDark);
+      })();
+    </script>
     <link rel="stylesheet" href="/output.css" />
     <link rel="icon" type="image/png" href="/images/favicon.png" />
     
