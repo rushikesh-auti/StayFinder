@@ -1,3 +1,104 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    --navbar-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+  }
+
+  html.dark {
+    color-scheme: dark;
+    --bg: #0f172a;
+    --surface: #111827;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --border: #334155;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    --navbar-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  .bg-background {
+    background-color: var(--bg);
+  }
+
+  .bg-surface {
+    background-color: var(--surface);
+  }
+
+  .bg-white {
+    background-color: var(--surface);
+  }
+
+  .text-text {
+    color: var(--text);
+  }
+
+  .text-muted {
+    color: var(--muted);
+  }
+
+  .border-border {
+    border-color: var(--border);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow);
+  }
+
+  .shadow-navbar {
+    box-shadow: var(--navbar-shadow);
+  }
+
+  .dark .bg-white {
+    background-color: var(--surface);
+  }
+
+  .dark .bg-background {
+    background-color: var(--bg);
+  }
+
+  .dark .bg-surface {
+    background-color: var(--surface);
+  }
+
+  .dark .text-text {
+    color: var(--text);
+  }
+
+  .dark .text-muted {
+    color: var(--muted);
+  }
+
+  .dark .border-border {
+    border-color: var(--border);
+  }
+
+  .dark [class*="bg-white/"] {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .dark [class*="bg-surface/"] {
+    background-color: rgba(17, 24, 39, 0.92) !important;
+  }
+
+  .dark [class*="bg-background/"] {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+  }
+
+  .dark [class*="border-border/"] {
+    border-color: var(--border) !important;
+  }
+}
