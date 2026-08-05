@@ -94,8 +94,6 @@
           >Manage Bookings</a
         >
         <% } %>
-      </div>
-
       <div class="ml-auto hidden items-center gap-2 lg:flex">
         <button
           type="button"
@@ -142,13 +140,51 @@
             class="rounded-lg border border-primary bg-white px-4 py-2 text-sm font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >Log in</a>
         <% } else { %>
-        <form action="/logout" method="POST">
+        <div class="relative">
           <button
-            class="rounded-xl border border-primary px-4 py-2 text-sm font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
+            id="profile-menu-button"
+            type="button"
+            class="inline-flex items-center gap-3 rounded-full border border-border bg-white px-3 py-2 text-sm font-semibold text-text shadow-sm transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            aria-haspopup="true"
+            aria-expanded="false"
           >
-            Log out
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white">
+              <%= (user.firstName || user.email || "U")[0].toUpperCase() %>
+            </span>
+            <span class="hidden sm:inline">
+              <%= user.firstName %> <%= user.lastName || "" %>
+            </span>
+            <svg class="h-3.5 w-3.5 text-text" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" />
+            </svg>
           </button>
-        </form>
+
+          <div
+            id="profile-menu"
+            class="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-3xl border border-border bg-white shadow-lg hidden"
+          >
+            <div class="px-4 py-4">
+              <p class="text-sm font-semibold text-text"><%= user.firstName %> <%= user.lastName || "" %></p>
+              <p class="mt-1 text-sm text-muted"><%= user.email %></p>
+            </div>
+            <div class="border-t border-border"></div>
+            <div class="grid gap-1 px-2 py-2">
+              <a href="/profile" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Profile</a>
+              <% if (user.userType === 'guest') { %>
+              <a href="/favourites" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Favourites</a>
+              <a href="/bookings" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">My Bookings</a>
+              <% } else { %>
+              <a href="/host/host-home-list" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">My Properties</a>
+              <a href="/host/host-bookings" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Manage Bookings</a>
+              <% } %>
+              <form action="/logout" method="POST" class="mt-1">
+                <button type="submit" class="w-full rounded-2xl bg-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-secondary">
+                  Log out
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
         <% } %>
       </div>
 
@@ -318,6 +354,13 @@
             >Manage Bookings <span aria-hidden="true">→</span></a
           >
           <% } %>
+          <% if (isLoggedIn) { %>
+          <a
+            href="/profile"
+            class="<%= currentPage === 'profile' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
+            >Profile <span aria-hidden="true">→</span></a
+          >
+          <% } %>
         </div>
 
         <div class="mt-4 border-t border-border pt-4">
@@ -335,13 +378,24 @@
             >
           </div>
           <% } else { %>
-          <form action="/logout" method="POST">
-            <button
-              class="w-full rounded-xl border border-primary bg-white px-4 py-2.5 font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
-            >
-              Log out
-            </button>
-          </form>
+          <div class="rounded-3xl border border-border bg-white p-4">
+            <p class="text-sm font-semibold text-text">Signed in as</p>
+            <p class="mt-1 text-base font-semibold text-text"><%= user.firstName %> <%= user.lastName || "" %></p>
+            <p class="text-sm text-muted"><%= user.email %></p>
+            <div class="mt-4 grid gap-2">
+              <a href="/profile" class="rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">Profile</a>
+              <% if (user.userType === 'guest') { %>
+              <a href="/favourites" class="rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">Favourites</a>
+              <a href="/bookings" class="rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">My Bookings</a>
+              <% } else { %>
+              <a href="/host/host-home-list" class="rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">My Properties</a>
+              <a href="/host/host-bookings" class="rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">Manage Bookings</a>
+              <% } %>
+              <form action="/logout" method="POST">
+                <button type="submit" class="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-secondary">Log out</button>
+              </form>
+            </div>
+          </div>
           <% } %>
         </div>
       </div>
@@ -385,6 +439,9 @@
 
       if (!navButton || !menu) return;
 
+      const profileToggle = document.getElementById('profile-menu-button');
+      const profileMenu = document.getElementById('profile-menu');
+
       navButton.addEventListener("click", function () {
         const isOpen = !menu.classList.contains("hidden");
         menu.classList.toggle("hidden", isOpen);
@@ -396,5 +453,21 @@
           isOpen ? "Open navigation menu" : "Close navigation menu",
         );
       });
+
+      if (profileToggle && profileMenu) {
+        profileToggle.addEventListener('click', function (event) {
+          event.stopPropagation();
+          const isOpen = !profileMenu.classList.contains('hidden');
+          profileMenu.classList.toggle('hidden', isOpen);
+          profileToggle.setAttribute('aria-expanded', String(!isOpen));
+        });
+
+        document.addEventListener('click', function (event) {
+          if (!profileMenu.classList.contains('hidden') && !profileMenu.contains(event.target) && !profileToggle.contains(event.target)) {
+            profileMenu.classList.add('hidden');
+            profileToggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
     })();
   </script>
