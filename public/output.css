@@ -795,6 +795,10 @@ body {
   top: 1.25rem;
 }
 
+.top-full {
+  top: 100%;
+}
+
 .z-20 {
   z-index: 20;
 }
@@ -2374,6 +2378,14 @@ body {
     grid-column: span 1 / span 1;
   }
 
+  .sm\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+
+  .sm\:inline {
+    display: inline;
+  }
+
   .sm\:h-\[420px\] {
     height: 420px;
   }
@@ -2496,8 +2508,20 @@ body {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .lg\:grid-cols-\[1\.2fr_0\.8fr\] {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+
   .lg\:flex-row {
     flex-direction: row;
+  }
+
+  .lg\:items-center {
+    align-items: center;
+  }
+
+  .lg\:justify-between {
+    justify-content: space-between;
   }
 
   .lg\:gap-10 {
