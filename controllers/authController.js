@@ -26,6 +26,30 @@ exports.getSignup = (req, res, next) => {
   });
 };
 
+exports.getProfile = async (req, res, next) => {
+  try {
+    const userId = req.session.user._id;
+    const profileUser = await User.findById(userId).populate("favourites");
+
+    if (!profileUser) {
+      req.flash("error", "User not found.");
+      return res.redirect("/");
+    }
+
+    res.render("auth/profile", {
+      pageTitle: "Profile",
+      currentPage: "profile",
+      isLoggedIn: req.isLoggedIn,
+      user: req.session.user,
+      profileUser,
+      favouritesCount: profileUser.favourites?.length || 0,
+    });
+  } catch (err) {
+    console.log(err);
+    next(err);
+  }
+};
+
 exports.postSignup = [
   // First Name
   check('firstName')
