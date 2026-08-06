@@ -1185,10 +1185,6 @@ body {
   align-items: baseline;
 }
 
-.justify-end {
-  justify-content: flex-end;
-}
-
 .justify-center {
   justify-content: center;
 }
@@ -1815,6 +1811,10 @@ body {
   line-height: 1.25;
 }
 
+.tracking-\[0\.16em\] {
+  letter-spacing: 0.16em;
+}
+
 .tracking-tight {
   letter-spacing: -0.025em;
 }
@@ -2380,10 +2380,6 @@ body {
 
   .sm\:col-span-2 {
     grid-column: span 2 / span 2;
-  }
-
-  .sm\:inline {
-    display: inline;
   }
 
   .sm\:h-\[420px\] {

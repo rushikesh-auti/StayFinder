@@ -3,12 +3,12 @@
     class="sticky top-0 z-50 border-b border-border/80 bg-surface/95 shadow-navbar backdrop-blur"
   >
     <nav
-      class="container mx-auto flex min-h-[64px] items-center gap-2 px-4 sm:px-6"
+      class="container mx-auto flex min-h-[64px] items-center justify-between gap-2 px-4 sm:px-6"
     >
       <a
         href="/"
         class="shrink-0 rounded-xl px-1 py-2 text-2xl font-extrabold tracking-tight text-text transition hover:text-primary"
-        aria-label="StayFinder home">
+        aria-label="Go to StayFinder homepage">
         StayFinder
       </a>
 
@@ -36,7 +36,7 @@
             type="text"
             name="q"
             value="<%= typeof query !== 'undefined' ? query : '' %>"
-            placeholder="Search properties"
+            placeholder="Search stays, cities, or listings"
             class="min-w-0 flex-1 border-0 bg-transparent px-2 outline-none placeholder:text-muted"
           />
           <button
@@ -75,25 +75,27 @@
         <a
           href="/bookings"
           class="<%= currentPage === 'bookings' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> rounded-lg px-3 py-2 font-semibold transition"
-          >My Bookings</a
+          >Bookings</a
         >
         <% } else if (isLoggedIn) { %>
         <a
           href="/host/host-home-list"
           class="<%= currentPage === 'host-homes' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> rounded-lg px-3 py-2 font-semibold transition"
-          >My Properties</a
+          >My Listings</a
         >
         <a
           href="/host/add-home"
           class="<%= currentPage === 'addHome' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> rounded-lg px-3 py-2 font-semibold transition"
-          >Add Property</a
+          >List a Property</a
         >
         <a
           href="/host/host-bookings"
           class="<%= currentPage === 'host-bookings' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> rounded-lg px-3 py-2 font-semibold transition"
-          >Manage Bookings</a
+          >Manage Booking</a
         >
         <% } %>
+      </div>
+
       <div class="ml-auto hidden items-center gap-2 lg:flex">
         <button
           type="button"
@@ -151,9 +153,6 @@
             <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white">
               <%= (user.firstName || user.email || "U")[0].toUpperCase() %>
             </span>
-            <span class="hidden sm:inline">
-              <%= user.firstName %> <%= user.lastName || "" %>
-            </span>
             <svg class="h-3.5 w-3.5 text-text" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" />
             </svg>
@@ -172,10 +171,10 @@
               <a href="/profile" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Profile</a>
               <% if (user.userType === 'guest') { %>
               <a href="/favourites" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Favourites</a>
-              <a href="/bookings" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">My Bookings</a>
+              <a href="/bookings" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Bookings</a>
               <% } else { %>
-              <a href="/host/host-home-list" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">My Properties</a>
-              <a href="/host/host-bookings" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Manage Bookings</a>
+              <a href="/host/host-home-list" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">My Listings</a>
+              <a href="/host/host-bookings" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Manage Booking</a>
               <% } %>
               <form action="/logout" method="POST" class="mt-1">
                 <button type="submit" class="w-full rounded-2xl bg-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-secondary">
@@ -188,14 +187,52 @@
         <% } %>
       </div>
 
-      <button
-        id="mobile-menu-button"
-        type="button"
-        class="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-white text-text shadow-sm transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 lg:hidden"
-        aria-controls="mobile-menu"
-        aria-expanded="false"
-        aria-label="Open navigation menu"
-      >
+      <div class="ml-auto flex items-center gap-2 lg:hidden">
+        <button
+          type="button"
+          class="theme-toggle-btn inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-white text-text shadow-sm transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          aria-label="Toggle theme"
+          title="Toggle theme"
+        >
+          <svg
+            data-theme-icon="light"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414M18.364 18.364l-1.414-1.414M7.05 7.05L5.636 5.636"
+            />
+          </svg>
+          <svg
+            data-theme-icon="dark"
+            class="hidden h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
+            />
+          </svg>
+        </button>
+
+        <button
+          id="mobile-menu-button"
+          type="button"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-white text-text shadow-sm transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
+          aria-label="Open navigation menu"
+          title="Open navigation menu"
+        >
         <svg
           id="icon-open"
           class="h-5 w-5"
@@ -233,11 +270,11 @@
       id="mobile-menu"
       class="hidden border-t border-border bg-surface px-4 pb-5 pt-4 shadow-navbar lg:hidden"
     >
-      <div class="container mx-auto">
+      <div class="container mx-auto max-w-3xl space-y-4">
         <form
           action="/homes/search"
           method="GET"
-          class="mb-4 flex items-center rounded-xl border border-border bg-white px-3 py-2 shadow-sm focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10"
+          class="mb-4 flex w-full items-center rounded-xl border border-border bg-white px-3 py-2 shadow-sm focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10"
         >
           <svg
             class="h-5 w-5 shrink-0 text-muted"
@@ -257,8 +294,8 @@
             type="text"
             name="q"
             value="<%= typeof query !== 'undefined' ? query : '' %>"
-            placeholder="Where do you want to stay?"
-            class="min-w-0 flex-1 border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted"
+            placeholder="Search stays, cities, or listings"
+            class="min-w-0 flex-1 w-full border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted"
           />
           <button
             type="submit"
@@ -282,45 +319,8 @@
           </button>
         </form>
 
-        <div class="mb-4 flex items-center justify-end gap-2">
-          <button
-            type="button"
-            class="theme-toggle-btn inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-white text-text shadow-sm transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-            aria-label="Toggle theme"
-            title="Toggle theme"
-          >
-            <svg
-              data-theme-icon="light"
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414M18.364 18.364l-1.414-1.414M7.05 7.05L5.636 5.636"
-              />
-            </svg>
-            <svg
-              data-theme-icon="dark"
-              class="hidden h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
-              />
-            </svg>
-          </button>
-        </div>
 
-        <div class="grid gap-1">
+        <div class="grid gap-3">
           <% if (isLoggedIn && user.userType === 'guest') { %>
           <a
             href="/homes"
@@ -335,66 +335,51 @@
           <a
             href="/bookings"
             class="<%= currentPage === 'bookings' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >My Bookings <span aria-hidden="true">→</span></a
+            >Bookings <span aria-hidden="true">→</span></a
           >
           <% } else if (isLoggedIn) { %>
           <a
             href="/host/host-home-list"
             class="<%= currentPage === 'host-homes' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >My Properties <span aria-hidden="true">→</span></a
+            >My Listings <span aria-hidden="true">→</span></a
           >
           <a
             href="/host/add-home"
             class="<%= currentPage === 'addHome' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >Add Property <span aria-hidden="true">→</span></a
+            >List a Property <span aria-hidden="true">→</span></a
           >
           <a
             href="/host/host-bookings"
             class="<%= currentPage === 'host-bookings' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >Manage Bookings <span aria-hidden="true">→</span></a
+            >Manage Booking <span aria-hidden="true">→</span></a
           >
           <% } %>
           <% if (isLoggedIn) { %>
-          <a
-            href="/profile"
-            class="<%= currentPage === 'profile' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >Profile <span aria-hidden="true">→</span></a
-          >
           <% } %>
         </div>
 
-        <div class="mt-4 border-t border-border pt-4">
+        <div class="mt-5 rounded-3xl border border-border bg-white p-4 text-text shadow-sm">
           <% if (!isLoggedIn) { %>
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid gap-3">
             <a
               href="/signup"
-              class="rounded-xl border border-primary bg-white px-4 py-2.5 text-center font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
+              class="rounded-2xl border border-primary bg-white px-4 py-3 text-center font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
               >Sign up</a
             >
             <a
               href="/login"
-              class="rounded-xl border border-primary bg-white px-4 py-2.5 text-center font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
+              class="rounded-2xl border border-primary bg-white px-4 py-3 text-center font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
               >Log in</a
             >
           </div>
           <% } else { %>
-          <div class="rounded-3xl border border-border bg-white p-4">
-            <p class="text-sm font-semibold text-text">Signed in as</p>
-            <p class="mt-1 text-base font-semibold text-text"><%= user.firstName %> <%= user.lastName || "" %></p>
-            <p class="text-sm text-muted"><%= user.email %></p>
-            <div class="mt-4 grid gap-2">
-              <a href="/profile" class="rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">Profile</a>
-              <% if (user.userType === 'guest') { %>
-              <a href="/favourites" class="rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">Favourites</a>
-              <a href="/bookings" class="rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">My Bookings</a>
-              <% } else { %>
-              <a href="/host/host-home-list" class="rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">My Properties</a>
-              <a href="/host/host-bookings" class="rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">Manage Bookings</a>
-              <% } %>
-              <form action="/logout" method="POST">
-                <button type="submit" class="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-secondary">Log out</button>
-              </form>
-            </div>
+          <p class="mt-2 text-base font-semibold text-text"><%= user.firstName %> <%= user.lastName || "" %></p>
+          <p class="text-sm text-muted"><%= user.email %></p>
+          <div class="mt-3 grid gap-3">
+            <a href="/profile" class="rounded-2xl bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">View Profile</a>
+            <form action="/logout" method="POST">
+              <button type="submit" class="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-secondary">Log out</button>
+            </form>
           </div>
           <% } %>
         </div>
