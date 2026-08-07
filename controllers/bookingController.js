@@ -1,6 +1,7 @@
 const Booking = require("../models/booking");
 const Home = require("../models/home");
 const mongoose = require("mongoose");
+const { sendBookingConfirmation, sendHostNotification } = require("../utils/sendEmail");
 
 const parseBookingDate = (value) => {
   const [year, month, day] = value.split("-").map(Number);
@@ -121,7 +122,7 @@ exports.postBooking = async (req, res) => {
   try {
     const { checkIn, checkOut, guests } = req.body;
 
-    const home = await Home.findById(req.params.homeId);
+    const home = await Home.findById(req.params.homeId).populate("host");
 
     if (!home) {
       req.flash("error", "Property not found.");
@@ -172,6 +173,38 @@ exports.postBooking = async (req, res) => {
 
     await booking.save();
 
+    const notificationTasks = [
+      sendBookingConfirmation(req.session.user.email, {
+        name: req.session.user.firstName,
+        property: home.houseName,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        guests,
+        total: totalPrice,
+        bookingId: booking._id.toString(),
+      }),
+    ];
+
+    if (home.host?.email) {
+      notificationTasks.push(
+        sendHostNotification(home.host.email, {
+          name: req.session.user.firstName,
+          property: home.houseName,
+          checkIn: checkIn,
+          checkOut: checkOut,
+          guests,
+          total: totalPrice,
+          bookingId: booking._id.toString(),
+          hostName: home.host.firstName || "Host",
+        })
+      );
+    } else {
+      console.warn("Host email not available; skipping host notification.");
+    }
+
+    void Promise.allSettled(notificationTasks);
+
+    req.flash("success", "Booking created successfully.");
     res.redirect("/bookings");
   } catch (err) {
     console.log(err);
@@ -182,7 +215,7 @@ exports.postBooking = async (req, res) => {
 exports.cancelBooking = async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.bookingId);
-    
+
     if (!booking) {
       req.flash("error", "Booking not found.");
       return res.redirect("/bookings");

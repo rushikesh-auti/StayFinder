@@ -154,10 +154,12 @@ app.use(errorsController.pageNotFound);
 const PORT = process.env.PORT || 3001;
 
 mongoose
-  .connect(process.env.DB_PATH)
+  .connect(process.env.DB_PATH, {
+    serverSelectionTimeoutMS: 5000,
+  })
   .then(() => {
     console.log("Connected to MongoDB");
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running at http://localhost:${PORT}`);
     });
   })

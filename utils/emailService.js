@@ -6,29 +6,33 @@ const smtpSecure =
     ? smtpPort === 465
     : process.env.SMTP_SECURE === "true";
 
-const smtpTransporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: smtpPort,
-  secure: smtpSecure,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 10_000,
-  greetingTimeout: 10_000,
-  socketTimeout: 20_000,
-});
+const smtpTransporter = process.env.SMTP_URL
+  ? nodemailer.createTransport(process.env.SMTP_URL)
+  : nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "smtp.gmail.com",
+    port: smtpPort,
+    secure: smtpSecure,
+    auth: process.env.EMAIL_USER && process.env.EMAIL_PASS
+      ? {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      }
+      : undefined,
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
+  });
 
-const hasSmtpConfig = (env = process.env) => Boolean(env.EMAIL_USER && env.EMAIL_PASS);
+const hasSmtpConfig = (env = process.env) => Boolean(env.SMTP_HOST && env.EMAIL_USER && env.EMAIL_PASS);
 const hasResendConfig = (env = process.env) => Boolean(env.RESEND_API_KEY && env.EMAIL_FROM);
 
 const resolveEmailTransport = (env = process.env) => {
-  if (hasResendConfig(env)) {
-    return "resend";
+  if (hasSmtpConfig(env) || Boolean(env.SMTP_URL && env.EMAIL_USER && env.EMAIL_PASS)) {
+    return "smtp";
   }
 
-  if (hasSmtpConfig(env)) {
-    return "smtp";
+  if (hasResendConfig(env)) {
+    return "resend";
   }
 
   return "none";
@@ -44,11 +48,17 @@ const sendWithResend = async ({ from, to, subject, html }) => {
     body: JSON.stringify({ from, to, subject, html }),
   });
 
+  const responseText = await response.text();
+
   if (!response.ok) {
-    throw new Error(`Resend email failed (${response.status}): ${await response.text()}`);
+    throw new Error(`Resend email failed (${response.status}): ${responseText}`);
   }
 
-  return response.json();
+  try {
+    return JSON.parse(responseText);
+  } catch (error) {
+    return { raw: responseText };
+  }
 };
 
 exports.hasEmailConfig = () => resolveEmailTransport() !== "none";

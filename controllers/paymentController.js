@@ -289,6 +289,7 @@ exports.verifyPayment = async (req, res) => {
           checkOut,
           guests,
           total: totalPrice,
+          bookingId: booking._id.toString(),
         }
       ),
       sendHostNotification(
@@ -300,6 +301,8 @@ exports.verifyPayment = async (req, res) => {
           checkOut,
           guests,
           total: totalPrice,
+          bookingId: booking._id.toString(),
+          hostName: home.host.firstName || "Host",
         }
       ),
     ]).then((notificationResults) => {
