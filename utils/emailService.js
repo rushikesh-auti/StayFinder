@@ -25,32 +25,63 @@ const smtpTransporter = process.env.SMTP_URL
 
 const hasSmtpConfig = (env = process.env) => Boolean(env.SMTP_HOST && env.EMAIL_USER && env.EMAIL_PASS);
 const hasResendConfig = (env = process.env) => Boolean(env.RESEND_API_KEY && env.EMAIL_FROM);
+const hasFallbackRecipient = (env = process.env) => Boolean(env.EMAIL_FALLBACK_RECIPIENT || env.EMAIL_USER);
+const isResendVerified = (env = process.env) => Boolean(env.RESEND_DOMAIN_VERIFIED === "true" || env.RESEND_USE === "true");
+
+const getFallbackRecipient = (env = process.env, originalRecipient) => {
+  const fallbackCandidates = [
+    env.EMAIL_FALLBACK_RECIPIENT,
+    env.EMAIL_USER,
+  ].filter(Boolean);
+
+  return fallbackCandidates.find((candidate) => candidate?.toLowerCase() !== originalRecipient?.toLowerCase()) || null;
+};
+
+const isResendSandboxError = (responseText = "") => /only send testing emails|validation_error|verify a domain/i.test(responseText);
 
 const resolveEmailTransport = (env = process.env) => {
   if (hasSmtpConfig(env) || Boolean(env.SMTP_URL && env.EMAIL_USER && env.EMAIL_PASS)) {
     return "smtp";
   }
 
-  if (hasResendConfig(env)) {
+  if (hasResendConfig(env) && (isResendVerified(env) || hasFallbackRecipient(env))) {
     return "resend";
   }
 
   return "none";
 };
 
-const sendWithResend = async ({ from, to, subject, html }) => {
+const sendWithResend = async (mailOptions, isFallback = false) => {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ from, to, subject, html }),
+    body: JSON.stringify(mailOptions),
   });
 
   const responseText = await response.text();
 
   if (!response.ok) {
+    if (!isFallback && isResendSandboxError(responseText)) {
+      const fallbackRecipient = getFallbackRecipient(process.env, mailOptions.to);
+
+      if (fallbackRecipient) {
+        console.warn(`Resend sandbox restriction triggered. Forwarding email to ${fallbackRecipient}.`);
+
+        return sendWithResend(
+          {
+            ...mailOptions,
+            to: fallbackRecipient,
+            subject: `[Forwarded] ${mailOptions.subject}`,
+            html: `${mailOptions.html}<p><small>Original recipient: ${mailOptions.to}</small></p>`,
+          },
+          true
+        );
+      }
+    }
+
     throw new Error(`Resend email failed (${response.status}): ${responseText}`);
   }
 
