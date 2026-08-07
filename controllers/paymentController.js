@@ -108,6 +108,13 @@ exports.createOrder = async (req, res) => {
       });
     }
 
+    if (req.session.user.userType === "host") {
+      return res.status(403).json({
+        success: false,
+        message: "Hosts cannot book properties.",
+      });
+    }
+
     if (home.host._id.toString() === req.session.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -204,6 +211,13 @@ exports.verifyPayment = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Property not found.",
+      });
+    }
+
+    if (req.session.user.userType === "host") {
+      return res.status(403).json({
+        success: false,
+        message: "Hosts cannot book properties.",
       });
     }
 

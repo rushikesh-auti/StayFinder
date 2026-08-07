@@ -128,6 +128,17 @@ exports.postBooking = async (req, res) => {
       return res.redirect("/homes");
     }
 
+    if (req.session.user.userType === "host") {
+      return res.render("store/home-detail", {
+        home,
+        pageTitle: "Home Detail",
+        currentPage: "Home",
+        isLoggedIn: req.session.isLoggedIn,
+        user: req.session.user,
+        bookingError: "Hosts cannot book properties.",
+      });
+    }
+
     const start = parseBookingDate(checkIn);
     const end = parseBookingDate(checkOut);
 
