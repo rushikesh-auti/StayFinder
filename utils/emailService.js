@@ -97,12 +97,24 @@ exports.hasEmailConfig = () => resolveEmailTransport() !== "none";
 exports.sendMail = async (mailOptions) => {
   const transport = resolveEmailTransport();
 
+  console.log(`Email transport selected: ${transport}`);
+
   if (transport === "resend") {
     return sendWithResend(mailOptions);
   }
 
   if (transport === "smtp") {
-    return smtpTransporter.sendMail(mailOptions);
+    try {
+      return await smtpTransporter.sendMail(mailOptions);
+    } catch (error) {
+      console.error("SMTP delivery failed:", {
+        code: error?.code,
+        command: error?.command,
+        response: error?.response,
+        message: error?.message,
+      });
+      throw error;
+    }
   }
 
   throw new Error("No email transport configured.");
