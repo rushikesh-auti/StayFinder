@@ -163,7 +163,7 @@ StayFinder/
 
 ## My Bookings
 
-<img width="1901" height="911" alt="Screenshot 2026-07-20 195428" src="https://github.com/user-attachments/assets/ba9c3f1f-5796-49ab-be97-24d26c2e2fa5" />
+<img width="1908" height="906" alt="Screenshot 2026-08-09 111001" src="https://github.com/user-attachments/assets/093a8a7d-408a-4b23-a356-eb59adada2d2" />
 
 ## User Profile
 
