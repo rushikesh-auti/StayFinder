@@ -4,9 +4,13 @@ const Review = require("../models/review");
 
 exports.getIndex = (req, res, next) => {
   console.log("Session Value: ", req.session);
-  Home.find().then((registeredHomes) => {
+  Promise.all([
+    Home.find(),
+    req.session.user ? User.findById(req.session.user._id).select("favourites").lean() : null,
+  ]).then(([registeredHomes, favouriteUser]) => {
     res.render("store/index", {
       registeredHomes: registeredHomes,
+      favouriteIds: (favouriteUser?.favourites || []).map((id) => id.toString()),
       pageTitle: "StayFinder Home",
       currentPage: "index",
       isLoggedIn: req.isLoggedIn,
@@ -16,9 +20,13 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getHomes = (req, res, next) => {
-  Home.find().then((registeredHomes) => {
+  Promise.all([
+    Home.find(),
+    req.session.user ? User.findById(req.session.user._id).select("favourites").lean() : null,
+  ]).then(([registeredHomes, favouriteUser]) => {
     res.render("store/home-list", {
       registeredHomes: registeredHomes,
+      favouriteIds: (favouriteUser?.favourites || []).map((id) => id.toString()),
       pageTitle: "Homes List",
       currentPage: "Home",
       isLoggedIn: req.isLoggedIn,
@@ -43,10 +51,14 @@ exports.searchHomes = async (req, res) => {
     });
   }
 
-  const registeredHomes = await Home.find(searchQuery);
+  const [registeredHomes, favouriteUser] = await Promise.all([
+    Home.find(searchQuery),
+    req.session.user ? User.findById(req.session.user._id).select("favourites").lean() : null,
+  ]);
 
   res.render("store/home-list", {
     registeredHomes,
+    favouriteIds: (favouriteUser?.favourites || []).map((id) => id.toString()),
     query,
     pageTitle: "Search Results",
     currentPage: "Home",
