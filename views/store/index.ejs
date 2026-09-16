@@ -53,74 +53,7 @@
 
         <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <% registeredHomes.forEach(home => { %>
-
-                <div class="group overflow-hidden rounded-3xl bg-surface shadow-card ring-1 ring-border/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
-                    <div class="relative overflow-hidden">
-                        <img
-                            src="<%= home.photo %>"
-                            alt="<%= home.houseName %>"
-                            class="h-64 w-full object-cover transition duration-500 group-hover:scale-110">
-
-                        <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
-
-                        <div class="absolute right-4 top-4">
-                            <%- include('../partials/favourite',{home:home}) %>
-                        </div>
-                    </div>
-
-                    <div class="p-6">
-                        <h3 class="truncate text-2xl font-bold text-text">
-                            <%= home.houseName %>
-                        </h3>
-
-                        <div class="mt-3 flex items-center gap-2 text-muted">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-5 w-5 shrink-0 text-primary"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor">
-
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0L6.343 16.657a8 8 0 1111.314 0z"/>
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-
-                            <span class="truncate">
-                                <%= home.location %>
-                            </span>
-                        </div>
-
-                        <div class="mt-6 flex items-center justify-between">
-                            <div>
-                                <p class="text-3xl font-bold text-primary">
-                                    ₹<%= home.price %>
-                                </p>
-
-                                <p class="text-sm text-muted">
-                                    per night
-                                </p>
-                            </div>
-
-                            <div class="flex items-center gap-1 rounded-full bg-yellow-100 px-4 py-2 font-semibold text-yellow-700">
-                                ⭐ <%= home.rating %>
-                            </div>
-
-                        </div>
-                        <a
-                            href="<%= isLoggedIn ? '/homes/' + home._id : '/login' %>"
-                            class="mt-6 block rounded-xl bg-primary py-3 text-center font-semibold text-white transition-all duration-300 hover:bg-secondary hover:shadow-lg active:scale-[0.98]">
-                            View Details
-                        </a>
-                    </div>
-                </div>
+                <%- include('../partials/property-card', { home, user, isLoggedIn, favouriteIds }) %>
             <% }) %>
         </div>
     </section>

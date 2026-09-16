@@ -85,67 +85,7 @@
     <% } else { %>
     <div class="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
         <% registeredHomes.forEach(home => { %>
-        <div
-            class="group overflow-hidden rounded-2xl bg-surface shadow-card transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-            <div class="relative overflow-hidden">
-                <img
-                    src="<%= home.photo %>"
-                    alt="<%= home.houseName %>"
-                    class="h-64 w-full object-cover transition duration-500 group-hover:scale-110">
-                <div class="absolute right-4 top-4">
-                    <%- include('../partials/favourite',{home}) %>
-                </div>
-            </div>
-
-            <div class="space-y-4 p-6">
-                <div class="flex items-start justify-between">
-                    <h2 class="text-xl font-bold text-text">
-                        <%= home.houseName %>
-                    </h2>
-                    <div class="flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1 text-sm font-semibold">
-                        ⭐ <span><%= home.rating %></span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2 text-muted">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 text-primary"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0L6.343 16.657a8 8 0 1111.314 0z"/>
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    <span><%= home.location %></span>
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-2xl font-bold text-primary">
-                            ₹<%= home.price %>
-                        </p>
-                        <span class="text-sm text-muted">
-                            per night
-                        </span>
-                    </div>
-
-                    <a
-                        href="/homes/<%= home._id %>"
-                        class="rounded-xl bg-primary px-5 py-2 font-semibold text-white transition hover:bg-secondary hover:shadow-lg">
-                        View Details →
-                    </a>
-                </div>
-            </div>
-        </div>
+            <%- include('../partials/property-card', { home, user, isLoggedIn, favouriteIds }) %>
         <% }) %>
     </div>
     <% } %>
