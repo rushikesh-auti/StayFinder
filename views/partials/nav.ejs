@@ -1,386 +1,263 @@
+<%
+  /* =====================================================================
+     1. VIEW-MODEL  (safe reads: never throws if a local is missing)
+     ===================================================================== */
+  const loggedIn = typeof isLoggedIn !== 'undefined' && !!isLoggedIn && typeof user !== 'undefined' && !!user;
+  const isGuest  = loggedIn && user.userType === 'guest';
+  const page     = typeof currentPage !== 'undefined' ? currentPage : '';
+  const q        = typeof query !== 'undefined' ? query : '';
+  const csrf     = typeof csrfToken !== 'undefined' ? csrfToken : null;
+
+  // Optional badge counts: pass favouritesCount / bookingsCount via res.locals
+  const counts = {
+    favourites: typeof favouritesCount !== 'undefined' ? Number(favouritesCount) || 0 : 0,
+    bookings:   typeof bookingsCount   !== 'undefined' ? Number(bookingsCount)   || 0 : 0,
+  };
+
+  const displayName = loggedIn ? [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email : '';
+  const initial     = loggedIn ? String(user.firstName || user.email || 'U').charAt(0).toUpperCase() : '';
+
+  /* =====================================================================
+     2. ICONS  (Heroicons outline paths)
+     ===================================================================== */
+  const paths = {
+    search:   'm21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z',
+    heart:    'M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z',
+    calendar: 'M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5',
+    compass:  'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm3.75-13.5-2.25 6-6 2.25 2.25-6 6-2.25Z',
+    home:     'm2.25 12 8.954-8.955a1.126 1.126 0 0 1 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25',
+    plus:     'M12 4.5v15m7.5-7.5h-15',
+    user:     'M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z',
+    login:    'M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9',
+    userPlus: 'M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z',
+    sun:      'M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z',
+    moon:     'M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z',
+    chevron:  'm19.5 8.25-7.5 7.5-7.5-7.5',
+    menu:     'M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5',
+    close:    'M6 18 18 6M6 6l12 12',
+  };
+  const icon = (name, cls = 'h-5 w-5') =>
+    `<svg class="${cls}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" d="${paths[name]}"/></svg>`;
+
+  /* =====================================================================
+     3. NAV LINKS  (one list, used by desktop + mobile + dropdown)
+     ===================================================================== */
+  const guestLinks = [
+    { href: '/homes',      label: 'Explore',    page: 'Home',       icon: 'compass' },
+    { href: '/favourites', label: 'Favourites', page: 'favourites', icon: 'heart',    count: counts.favourites },
+    { href: '/bookings',   label: 'Bookings',   page: 'bookings',   icon: 'calendar', count: counts.bookings },
+  ];
+  const hostLinks = [
+    { href: '/host/host-home-list', label: 'My listings',     page: 'host-homes',    icon: 'home' },
+    { href: '/host/host-bookings',  label: 'Manage bookings', page: 'host-bookings', icon: 'calendar' },
+  ];
+  const links = isGuest ? guestLinks : (loggedIn ? hostLinks : []);
+
+  /* =====================================================================
+     4. SMALL HELPERS  (shared class strings = one place to restyle)
+     ===================================================================== */
+  const badge = (n) => n > 0
+    ? `<span class="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold leading-none text-white ring-2 ring-white">${n > 99 ? '99+' : n}</span>`
+    : '';
+
+  const ui = {
+    focus:    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+    navLink:  'relative inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition',
+    menuItem: 'flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10',
+  };
+%>
+
+<a
+  href="#main-content"
+  class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:font-semibold focus:text-white"
+>Skip to content</a>
+
 <div class="page-wrapper flex min-h-screen flex-col">
-  <header
-    class="sticky top-0 z-50 border-b border-border/80 bg-surface/95 shadow-navbar backdrop-blur"
-  >
-    <nav
-      class="container mx-auto flex min-h-[64px] items-center justify-between gap-2 px-4 sm:px-6"
-    >
-      <a
-        href="/"
-        class="shrink-0 rounded-xl px-1 py-2 text-2xl font-extrabold tracking-tight text-text transition hover:text-primary"
-        aria-label="Go to StayFinder homepage">
-        StayFinder
-      </a>
+  <header id="site-header" class="sticky top-0 z-50 border-b border-border/80 bg-surface/95 backdrop-blur transition-shadow">
 
-      <div class="hidden flex-1 items-center justify-center gap-2 lg:flex">
-        <form
-          action="/homes/search"
-          method="GET"
-          class="flex w-full max-w-sm items-center rounded-full border border-border bg-white px-3 py-1.5 shadow-sm transition focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10"
-        >
-          <svg
-            class="h-5 w-5 shrink-0 text-muted"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="m21 21-4.35-4.35m1.85-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
-            />
-          </svg>
-          <input
-            type="text"
-            name="q"
-            value="<%= typeof query !== 'undefined' ? query : '' %>"
-            placeholder="Search stays, cities, or listings"
-            class="min-w-0 flex-1 border-0 bg-transparent px-2 outline-none placeholder:text-muted"
-          />
-          <button
-            type="submit"
-            class="rounded-full bg-primary p-2 text-white transition hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-            aria-label="Search properties"
-          >
-            <svg
-              class="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="m21 21-4.35-4.35m1.85-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
-              />
-            </svg>
-          </button>
-        </form>
+    <!-- Wider side spacing: px-4 (phone) → px-8 (tablet) → px-12 (desktop). Change here only. -->
+    <nav class="mx-auto flex h-16 max-w-screen-2xl items-center gap-3 px-4 sm:px-8 lg:px-12" aria-label="Main">
 
-        <% if (isLoggedIn && user.userType === 'guest') { %>
-        <a
-          href="/homes"
-          class="<%= currentPage === 'Home' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> rounded-lg px-3 py-2 font-semibold transition"
-          >Explore</a
-        >
-        <a
-          href="/favourites"
-          class="<%= currentPage === 'favourites' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> rounded-lg px-3 py-2 font-semibold transition"
-          >Favourites</a
-        >
-        <a
-          href="/bookings"
-          class="<%= currentPage === 'bookings' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> rounded-lg px-3 py-2 font-semibold transition"
-          >Bookings</a
-        >
-        <% } else if (isLoggedIn) { %>
-        <a
-          href="/host/host-home-list"
-          class="<%= currentPage === 'host-homes' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> rounded-lg px-3 py-2 font-semibold transition"
-          >My Listings</a
-        >
-        <a
-          href="/host/add-home"
-          class="<%= currentPage === 'addHome' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> rounded-lg px-3 py-2 font-semibold transition"
-          >List a Property</a
-        >
-        <a
-          href="/host/host-bookings"
-          class="<%= currentPage === 'host-bookings' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> rounded-lg px-3 py-2 font-semibold transition"
-          >Manage Booking</a
-        >
-        <% } %>
-      </div>
+      <!-- ================= LOGO ================= -->
+      <a href="/" aria-label="StayFinder home"
+        class="shrink-0 rounded-xl px-1 py-2 text-2xl font-extrabold tracking-tight text-text transition hover:text-primary <%= ui.focus %>">StayFinder</a>
 
-      <div class="ml-auto hidden items-center gap-2 lg:flex">
-        <button
-          type="button"
-          class="theme-toggle-btn inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-white text-text shadow-sm transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          aria-label="Toggle theme"
-          title="Toggle theme"
-        >
-          <svg
-            data-theme-icon="light"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414M18.364 18.364l-1.414-1.414M7.05 7.05L5.636 5.636"
-            />
-          </svg>
-          <svg
-            data-theme-icon="dark"
-            class="hidden h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
-            />
-          </svg>
+      <!-- ================= DESKTOP SEARCH ================= -->
+      <form action="/homes/search" method="GET" role="search"
+        class="mx-2 hidden min-w-0 max-w-xl flex-1 items-center rounded-full border border-border bg-white py-1.5 pl-4 pr-1.5 shadow-sm transition focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 lg:flex">
+        <label for="nav-search-desktop" class="sr-only">Search stays</label>
+        <span class="text-muted"><%- icon('search', 'h-5 w-5 shrink-0') %></span>
+        <input id="nav-search-desktop" type="search" name="q" value="<%= q %>" maxlength="100" autocomplete="off" enterkeyhint="search"
+          placeholder="Search stays, cities, or listings"
+          class="min-w-0 flex-1 border-0 bg-transparent px-3 py-1 text-sm outline-none placeholder:text-muted [&::-webkit-search-cancel-button]:hidden" />
+        <button type="submit"
+          class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+          Search
         </button>
-        <% if (!isLoggedIn) { %>
-          <a
-            href="/signup"
-            class="rounded-lg border border-primary bg-white px-4 py-2 text-sm font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
-          >Sign up</a>
-          <a
-            href="/login"
-            class="rounded-lg border border-primary bg-white px-4 py-2 text-sm font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          >Log in</a>
-        <% } else { %>
-        <div class="relative">
-          <button
-            id="profile-menu-button"
-            type="button"
-            class="inline-flex items-center gap-3 rounded-full border border-border bg-white px-3 py-2 text-sm font-semibold text-text shadow-sm transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white">
-              <%= (user.firstName || user.email || "U")[0].toUpperCase() %>
-            </span>
-            <svg class="h-3.5 w-3.5 text-text" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" />
-            </svg>
-          </button>
+      </form>
 
-          <div
-            id="profile-menu"
-            class="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-3xl border border-border bg-white shadow-lg hidden"
-          >
-            <div class="px-4 py-4">
-              <p class="text-sm font-semibold text-text"><%= user.firstName %> <%= user.lastName || "" %></p>
-              <p class="mt-1 text-sm text-muted"><%= user.email %></p>
+      <!-- ================= DESKTOP ACTIONS ================= -->
+      <div class="ml-auto hidden items-center gap-1 lg:flex">
+
+        <!-- Main links (Explore / Favourites / Bookings or host links) -->
+        <% links.forEach(function (l) { const active = page === l.page; %>
+          <a href="<%= l.href %>" title="<%= l.label %>"
+            <%- active ? 'aria-current="page"' : '' %>
+            class="<%= ui.navLink %> <%= ui.focus %> <%= active ? 'bg-primary/10 text-primary' : 'text-text hover:bg-primary/10 hover:text-primary' %>">
+            <span class="relative"><%- icon(l.icon) %><%- badge(l.count || 0) %></span>
+            <span class="<%= isGuest ? 'hidden xl:inline' : '' %>"><%= l.label %></span>
+          </a>
+        <% }) %>
+
+        <!-- Host only: List a property -->
+        <% if (loggedIn && !isGuest) { %>
+          <a href="/host/add-home"
+            <%- page === 'addHome' ? 'aria-current="page"' : '' %>
+            class="ml-1 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-secondary focus-visible:ring-offset-2 <%= ui.focus %>">
+            <%- icon('plus', 'h-4 w-4') %> List a property
+          </a>
+        <% } %>
+
+        <span class="mx-1 h-6 w-px bg-border" aria-hidden="true"></span>
+
+        <!-- Theme toggle -->
+        <button type="button" aria-label="Switch theme"
+          class="theme-toggle-btn inline-flex h-10 w-10 items-center justify-center rounded-lg text-text transition hover:bg-primary/10 hover:text-primary <%= ui.focus %>">
+          <span data-theme-icon="light"><%- icon('sun') %></span>
+          <span data-theme-icon="dark" class="hidden"><%- icon('moon') %></span>
+        </button>
+
+        <!-- ============ ACCOUNT DROPDOWN (both states use the same markup pattern) ============
+             data-dropdown          → wrapper
+             data-dropdown-trigger  → button that opens it
+             data-dropdown-panel    → the menu
+             The script at the bottom wires up ANY element with these attributes. -->
+        <div class="relative" data-dropdown>
+
+          <% if (!loggedIn) { %>
+            <!-- ---------- LOGGED OUT: "Log in ⌄" (Flipkart style) ---------- -->
+            <button type="button" data-dropdown-trigger aria-haspopup="true" aria-expanded="false" aria-label="Log in or sign up"
+              class="inline-flex items-center gap-2 rounded-full py-1 pl-1 pr-3 text-text transition hover:bg-primary/10 <%= ui.focus %>">
+              <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary"><%- icon('user', 'h-5 w-5') %></span>
+              <span class="text-sm font-bold">Log in</span>
+              <span class="text-muted transition-transform" data-chevron><%- icon('chevron', 'h-3.5 w-3.5') %></span>
+            </button>
+
+            <div data-dropdown-panel class="absolute right-0 top-full z-50 hidden w-60 pt-2">
+              <div class="overflow-hidden rounded-2xl border border-border bg-white shadow-lg">
+                <div class="grid gap-0.5 p-2">
+                  <a href="/login"  class="<%= ui.menuItem %>"><%- icon('login', 'h-4 w-4') %> Log in</a>
+                  <a href="/signup" class="<%= ui.menuItem %>"><%- icon('userPlus', 'h-4 w-4') %> Sign up</a>
+                </div>
+                <p class="border-t border-border px-4 py-3 text-xs text-muted">New to StayFinder? Create an account in under a minute.</p>
+              </div>
             </div>
-            <div class="border-t border-border"></div>
-            <div class="grid gap-1 px-2 py-2">
-              <a href="/profile" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Profile</a>
-              <% if (user.userType === 'guest') { %>
-              <a href="/favourites" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Favourites</a>
-              <a href="/bookings" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Bookings</a>
-              <% } else { %>
-              <a href="/host/host-home-list" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">My Listings</a>
-              <a href="/host/host-bookings" class="rounded-2xl px-3 py-2 text-sm font-semibold text-text transition hover:bg-primary/10">Manage Booking</a>
-              <% } %>
-              <form action="/logout" method="POST" class="mt-1">
-                <button type="submit" class="w-full rounded-2xl bg-primary px-3 py-2 text-sm font-semibold text-white transition hover:bg-secondary">
-                  Log out
-                </button>
-              </form>
+
+          <% } else { %>
+            <!-- ---------- LOGGED IN: avatar + profile menu ---------- -->
+            <button type="button" data-dropdown-trigger aria-haspopup="true" aria-expanded="false" aria-label="Account menu"
+              class="inline-flex items-center gap-2 rounded-full border border-border bg-white py-1 pl-1 pr-3 text-text shadow-sm transition hover:border-primary focus-visible:ring-offset-2 <%= ui.focus %>">
+              <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white"><%= initial %></span>
+              <span class="text-muted transition-transform" data-chevron><%- icon('chevron', 'h-3.5 w-3.5') %></span>
+            </button>
+
+            <div data-dropdown-panel class="absolute right-0 top-full z-50 hidden w-64 pt-2">
+              <div class="overflow-hidden rounded-2xl border border-border bg-white shadow-lg">
+                <div class="px-4 py-3">
+                  <p class="truncate text-sm font-semibold text-text"><%= displayName %></p>
+                  <p class="truncate text-sm text-muted"><%= user.email %></p>
+                  <p class="mt-2 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary"><%= isGuest ? 'Guest' : 'Host' %></p>
+                </div>
+                <div class="border-t border-border"></div>
+                <div class="grid gap-0.5 p-2">
+                  <a href="/profile" class="<%= ui.menuItem %>"><%- icon('user', 'h-4 w-4') %> Profile</a>
+                  <% links.forEach(function (l) { %>
+                    <a href="<%= l.href %>" class="<%= ui.menuItem %>"><%- icon(l.icon, 'h-4 w-4') %> <%= l.label %></a>
+                  <% }) %>
+                </div>
+                <div class="border-t border-border p-2">
+                  <form action="/logout" method="POST">
+                    <% if (csrf) { %><input type="hidden" name="_csrf" value="<%= csrf %>" /><% } %>
+                    <button type="submit" class="w-full rounded-xl px-3 py-2 text-left text-sm font-semibold text-text transition hover:bg-primary/10">Log out</button>
+                  </form>
+                </div>
+              </div>
             </div>
-          </div>
+          <% } %>
         </div>
-        <% } %>
       </div>
 
-      <div class="ml-auto flex items-center gap-2 lg:hidden">
-        <button
-          type="button"
-          class="theme-toggle-btn inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-white text-text shadow-sm transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          aria-label="Toggle theme"
-          title="Toggle theme"
-        >
-          <svg
-            data-theme-icon="light"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414M18.364 18.364l-1.414-1.414M7.05 7.05L5.636 5.636"
-            />
-          </svg>
-          <svg
-            data-theme-icon="dark"
-            class="hidden h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
-            />
-          </svg>
+      <!-- ================= MOBILE ACTIONS ================= -->
+      <div class="ml-auto flex items-center gap-1 lg:hidden">
+        <button type="button" aria-label="Switch theme"
+          class="theme-toggle-btn inline-flex h-10 w-10 items-center justify-center rounded-lg text-text transition hover:bg-primary/10 <%= ui.focus %>">
+          <span data-theme-icon="light"><%- icon('sun') %></span>
+          <span data-theme-icon="dark" class="hidden"><%- icon('moon') %></span>
         </button>
-
-        <button
-          id="mobile-menu-button"
-          type="button"
-          class="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-white text-text shadow-sm transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          aria-controls="mobile-menu"
-          aria-expanded="false"
-          aria-label="Open navigation menu"
-          title="Open navigation menu"
-        >
-        <svg
-          id="icon-open"
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-        <svg
-          id="icon-close"
-          class="hidden h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m6 18 12-12M6 6l12 12"
-          />
-        </svg>
-      </button>
+        <button id="mobile-menu-button" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Open menu"
+          class="relative inline-flex h-10 w-10 items-center justify-center rounded-lg text-text transition hover:bg-primary/10 <%= ui.focus %>">
+          <span id="icon-open"><%- icon('menu') %></span>
+          <span id="icon-close" class="hidden"><%- icon('close') %></span>
+        </button>
+      </div>
     </nav>
 
-    <div
-      id="mobile-menu"
-      class="hidden border-t border-border bg-surface px-4 pb-5 pt-4 shadow-navbar lg:hidden"
-    >
-      <div class="container mx-auto max-w-3xl space-y-4">
-        <form
-          action="/homes/search"
-          method="GET"
-          class="mb-4 flex w-full items-center rounded-xl border border-border bg-white px-3 py-2 shadow-sm focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10"
-        >
-          <svg
-            class="h-5 w-5 shrink-0 text-muted"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="m21 21-4.35-4.35m1.85-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
-            />
-          </svg>
-          <input
-            type="text"
-            name="q"
-            value="<%= typeof query !== 'undefined' ? query : '' %>"
-            placeholder="Search stays, cities, or listings"
-            class="min-w-0 flex-1 w-full border-0 bg-transparent px-2 py-1 outline-none placeholder:text-muted"
-          />
-          <button
-            type="submit"
-            class="rounded-lg bg-primary p-2.5 text-white transition hover:bg-secondary"
-            aria-label="Search properties"
-          >
-            <svg
-              class="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"
-              />
-            </svg>
-          </button>
-        </form>
+    <!-- ================= MOBILE SEARCH (always visible) ================= -->
+    <div class="border-t border-border/60 px-4 pb-3 pt-2 sm:px-8 lg:hidden">
+      <form action="/homes/search" method="GET" role="search"
+        class="flex items-center rounded-full border border-border bg-white py-1 pl-4 pr-1 shadow-sm focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10">
+        <label for="nav-search-mobile" class="sr-only">Search stays</label>
+        <span class="text-muted"><%- icon('search', 'h-5 w-5 shrink-0') %></span>
+        <input id="nav-search-mobile" type="search" name="q" value="<%= q %>" maxlength="100" autocomplete="off" enterkeyhint="search"
+          placeholder="Search stays, cities, or listings"
+          class="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 text-base outline-none placeholder:text-muted [&::-webkit-search-cancel-button]:hidden" />
+        <button type="submit" aria-label="Search" class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-secondary">Go</button>
+      </form>
+    </div>
 
+    <!-- ================= MOBILE DRAWER (nav links, under the hamburger) ================= -->
+    <div id="mobile-menu" class="hidden max-h-[calc(100dvh-8.5rem)] overflow-y-auto border-t border-border bg-surface px-4 pb-6 pt-4 shadow-lg sm:px-8 lg:hidden">
+      <div class="mx-auto max-w-3xl space-y-4">
 
-        <div class="grid gap-3">
-          <% if (isLoggedIn && user.userType === 'guest') { %>
-          <a
-            href="/homes"
-            class="<%= currentPage === 'Home' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >Explore <span aria-hidden="true">→</span></a
-          >
-          <a
-            href="/favourites"
-            class="<%= currentPage === 'favourites' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >Favourites <span aria-hidden="true">→</span></a
-          >
-          <a
-            href="/bookings"
-            class="<%= currentPage === 'bookings' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >Bookings <span aria-hidden="true">→</span></a
-          >
-          <% } else if (isLoggedIn) { %>
-          <a
-            href="/host/host-home-list"
-            class="<%= currentPage === 'host-homes' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >My Listings <span aria-hidden="true">→</span></a
-          >
-          <a
-            href="/host/add-home"
-            class="<%= currentPage === 'addHome' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >List a Property <span aria-hidden="true">→</span></a
-          >
-          <a
-            href="/host/host-bookings"
-            class="<%= currentPage === 'host-bookings' ? 'bg-primary text-white shadow-sm' : 'text-text hover:bg-primary/10 hover:text-primary' %> flex items-center justify-between rounded-xl px-4 py-2.5 font-semibold transition"
-            >Manage Booking <span aria-hidden="true">→</span></a
-          >
-          <% } %>
-          <% if (isLoggedIn) { %>
-          <% } %>
-        </div>
-
-        <div class="mt-5 rounded-3xl border border-border bg-white p-4 text-text shadow-sm">
-          <% if (!isLoggedIn) { %>
-          <div class="grid gap-3">
-            <a
-              href="/signup"
-              class="rounded-2xl border border-primary bg-white px-4 py-3 text-center font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
-              >Sign up</a
-            >
-            <a
-              href="/login"
-              class="rounded-2xl border border-primary bg-white px-4 py-3 text-center font-semibold text-primary transition-all duration-300 hover:bg-primary hover:text-white"
-              >Log in</a
-            >
+        <% if (links.length) { %>
+          <div class="grid gap-1">
+            <% links.forEach(function (l) { const active = page === l.page; %>
+              <a href="<%= l.href %>" <%- active ? 'aria-current="page"' : '' %>
+                class="flex items-center gap-3 rounded-xl px-4 py-3 font-semibold transition <%= active ? 'bg-primary/10 text-primary' : 'text-text hover:bg-primary/10 hover:text-primary' %>">
+                <%- icon(l.icon) %>
+                <span class="flex-1"><%= l.label %></span>
+                <% if (l.count > 0) { %><span class="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-white"><%= l.count > 99 ? '99+' : l.count %></span><% } %>
+              </a>
+            <% }) %>
+            <% if (!isGuest) { %>
+              <a href="/host/add-home" class="mt-2 flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-semibold text-white transition hover:bg-secondary">
+                <%- icon('plus') %> List a property
+              </a>
+            <% } %>
           </div>
+        <% } %>
+
+        <div class="rounded-2xl border border-border bg-white p-4 text-text">
+          <% if (!loggedIn) { %>
+            <div class="grid grid-cols-2 gap-3">
+              <a href="/login"  class="rounded-xl border border-primary px-4 py-3 text-center font-semibold text-primary transition hover:bg-primary hover:text-white">Log in</a>
+              <a href="/signup" class="rounded-xl bg-primary px-4 py-3 text-center font-semibold text-white transition hover:bg-secondary">Sign up</a>
+            </div>
           <% } else { %>
-          <p class="mt-2 text-base font-semibold text-text"><%= user.firstName %> <%= user.lastName || "" %></p>
-          <p class="text-sm text-muted"><%= user.email %></p>
-          <div class="mt-3 grid gap-3">
-            <a href="/profile" class="rounded-2xl bg-surface px-4 py-3 text-sm font-semibold text-text transition hover:bg-primary/10">View Profile</a>
-            <form action="/logout" method="POST">
-              <button type="submit" class="w-full rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-secondary">Log out</button>
-            </form>
-          </div>
+            <div class="flex items-center gap-3">
+              <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-white"><%= initial %></span>
+              <div class="min-w-0">
+                <p class="truncate font-semibold"><%= displayName %></p>
+                <p class="truncate text-sm text-muted"><%= user.email %></p>
+              </div>
+            </div>
+            <div class="mt-4 grid gap-2">
+              <a href="/profile" class="rounded-xl bg-surface px-4 py-3 text-sm font-semibold transition hover:bg-primary/10">View profile</a>
+              <form action="/logout" method="POST">
+                <% if (csrf) { %><input type="hidden" name="_csrf" value="<%= csrf %>" /><% } %>
+                <button type="submit" class="w-full rounded-xl border border-border px-4 py-3 text-sm font-semibold transition hover:bg-primary/10">Log out</button>
+              </form>
+            </div>
           <% } %>
         </div>
       </div>
@@ -389,70 +266,121 @@
 
   <script>
     (function () {
-      const navButton = document.getElementById("mobile-menu-button");
-      const menu = document.getElementById("mobile-menu");
-      const openIcon = document.getElementById("icon-open");
-      const closeIcon = document.getElementById("icon-close");
-      const root = document.documentElement;
-      const themeButtons = Array.from(document.querySelectorAll('.theme-toggle-btn'));
+      var root   = document.documentElement;
+      var header = document.getElementById('site-header');
 
-      function updateThemeButtons(isDark) {
-        themeButtons.forEach((btn) => {
-          const lightIcon = btn.querySelector('[data-theme-icon="light"]');
-          const darkIcon = btn.querySelector('[data-theme-icon="dark"]');
-          if (lightIcon) lightIcon.classList.toggle('hidden', isDark);
-          if (darkIcon) darkIcon.classList.toggle('hidden', !isDark);
-          btn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+      /* ------------------------------------------------------------------
+         THEME  (localStorage can throw in private mode, so it is wrapped)
+         ------------------------------------------------------------------ */
+      var themeButtons = document.querySelectorAll('.theme-toggle-btn');
+
+      function syncThemeButtons() {
+        var dark = root.classList.contains('dark');
+        themeButtons.forEach(function (btn) {
+          var light = btn.querySelector('[data-theme-icon="light"]');
+          var moon  = btn.querySelector('[data-theme-icon="dark"]');
+          if (light) light.classList.toggle('hidden', dark);
+          if (moon)  moon.classList.toggle('hidden', !dark);
+          btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
         });
       }
 
-      function setTheme(theme) {
-        const isDark = theme === 'dark';
-        root.classList.toggle('dark', isDark);
-        localStorage.setItem('theme', theme);
-        updateThemeButtons(isDark);
-      }
-
-      if (themeButtons.length) {
-        themeButtons.forEach((btn) => {
-          btn.addEventListener('click', function () {
-            setTheme(root.classList.contains('dark') ? 'light' : 'dark');
-          });
+      themeButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var next = root.classList.contains('dark') ? 'light' : 'dark';
+          root.classList.toggle('dark', next === 'dark');
+          try { localStorage.setItem('theme', next); } catch (e) {}
+          syncThemeButtons();
         });
-        updateThemeButtons(root.classList.contains('dark'));
+      });
+      syncThemeButtons();
+
+      /* ------------------------------------------------------------------
+         HEADER SHADOW ON SCROLL
+         ------------------------------------------------------------------ */
+      function onScroll() { header.classList.toggle('shadow-navbar', window.scrollY > 4); }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+
+      /* ------------------------------------------------------------------
+         DROPDOWNS  (works for every [data-dropdown] on the page)
+         - Click toggles it (touch + keyboard friendly)
+         - Hover opens it on devices that have a mouse
+         ------------------------------------------------------------------ */
+      var canHover  = window.matchMedia('(hover: hover)').matches;
+      var dropdowns = [];
+
+      function createDropdown(wrapper) {
+        var trigger = wrapper.querySelector('[data-dropdown-trigger]');
+        var panel   = wrapper.querySelector('[data-dropdown-panel]');
+        var chevron = wrapper.querySelector('[data-chevron]');
+        if (!trigger || !panel) return;
+
+        function setOpen(open) {
+          panel.classList.toggle('hidden', !open);
+          trigger.setAttribute('aria-expanded', String(open));
+          if (chevron) chevron.classList.toggle('rotate-180', open);
+        }
+        function isOpen() { return !panel.classList.contains('hidden'); }
+
+        trigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          setOpen(!isOpen());
+        });
+
+        if (canHover) {
+          wrapper.addEventListener('mouseenter', function () { setOpen(true); });
+          wrapper.addEventListener('mouseleave', function () { setOpen(false); });
+        }
+
+        dropdowns.push({ wrapper: wrapper, trigger: trigger, isOpen: isOpen, close: function () { setOpen(false); } });
       }
 
-      if (!navButton || !menu) return;
+      document.querySelectorAll('[data-dropdown]').forEach(createDropdown);
 
-      const profileToggle = document.getElementById('profile-menu-button');
-      const profileMenu = document.getElementById('profile-menu');
-
-      navButton.addEventListener("click", function () {
-        const isOpen = !menu.classList.contains("hidden");
-        menu.classList.toggle("hidden", isOpen);
-        openIcon.classList.toggle("hidden", !isOpen);
-        closeIcon.classList.toggle("hidden", isOpen);
-        navButton.setAttribute("aria-expanded", String(!isOpen));
-        navButton.setAttribute(
-          "aria-label",
-          isOpen ? "Open navigation menu" : "Close navigation menu",
-        );
+      // Click outside closes all dropdowns
+      document.addEventListener('click', function (e) {
+        dropdowns.forEach(function (d) { if (!d.wrapper.contains(e.target)) d.close(); });
       });
 
-      if (profileToggle && profileMenu) {
-        profileToggle.addEventListener('click', function (event) {
-          event.stopPropagation();
-          const isOpen = !profileMenu.classList.contains('hidden');
-          profileMenu.classList.toggle('hidden', isOpen);
-          profileToggle.setAttribute('aria-expanded', String(!isOpen));
-        });
+      /* ------------------------------------------------------------------
+         MOBILE DRAWER
+         ------------------------------------------------------------------ */
+      var navBtn    = document.getElementById('mobile-menu-button');
+      var menu      = document.getElementById('mobile-menu');
+      var iconOpen  = document.getElementById('icon-open');
+      var iconClose = document.getElementById('icon-close');
 
-        document.addEventListener('click', function (event) {
-          if (!profileMenu.classList.contains('hidden') && !profileMenu.contains(event.target) && !profileToggle.contains(event.target)) {
-            profileMenu.classList.add('hidden');
-            profileToggle.setAttribute('aria-expanded', 'false');
-          }
-        });
+      function setMobile(open) {
+        if (!navBtn || !menu) return;
+        menu.classList.toggle('hidden', !open);
+        iconOpen.classList.toggle('hidden', open);
+        iconClose.classList.toggle('hidden', !open);
+        navBtn.setAttribute('aria-expanded', String(open));
+        navBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
       }
+      if (navBtn && menu) {
+        navBtn.addEventListener('click', function () { setMobile(menu.classList.contains('hidden')); });
+      }
+
+      /* ------------------------------------------------------------------
+         ESCAPE KEY: close whatever is open and return focus
+         ------------------------------------------------------------------ */
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape') return;
+        dropdowns.forEach(function (d) { if (d.isOpen()) { d.close(); d.trigger.focus(); } });
+        if (menu && !menu.classList.contains('hidden')) { setMobile(false); navBtn.focus(); }
+      });
+
+      /* ------------------------------------------------------------------
+         RESET WHEN CROSSING THE DESKTOP BREAKPOINT
+         ------------------------------------------------------------------ */
+      var LG = window.matchMedia('(min-width: 1024px)');
+      function onBreakpoint() {
+        if (LG.matches) setMobile(false);
+        else dropdowns.forEach(function (d) { d.close(); });
+      }
+      if (LG.addEventListener) LG.addEventListener('change', onBreakpoint);
+      else if (LG.addListener) LG.addListener(onBreakpoint);
     })();
   </script>
